@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {unstartedReviewFixture} from '../fixtures/unstarted-review.mjs';import {unstartedReviewBasis} from '../../dist/server/unstarted-review.js';
+test('only the typed before-send failure with exact admission and cleanup yields a no-turn basis',async t=>{const x=await unstartedReviewFixture(t);assert.equal(unstartedReviewBasis(x.h.store,x.h.store.run(x.r.id)).dispatchId,x.dispatchId);});
+for(const [name,alter]of [
+ ['completed turn',x=>x.h.store.event(x.p.id,x.r.id,'agent.event',{method:'dm/codexCompletion',params:{role:'reviewer'}})],
+ ['late tool',x=>x.h.store.record('ToolIntent',x.p.id,x.r.id,{tool:'desk_run'})],
+ ['wrong packet admission',x=>{const e=x.h.store.db.prepare("SELECT id,payload FROM events WHERE run_id=? AND json_extract(payload,'$.method')='dm/codexAdmission' ORDER BY id DESC LIMIT 1").get(x.r.id);x.h.store.db.prepare("UPDATE events SET payload=json_set(payload,'$.params.reviewPacketHash',?) WHERE id=?").run('f'.repeat(64),e.id);}]
+])test('no-turn basis rejects '+name,async t=>{const x=await unstartedReviewFixture(t);alter(x);assert.throws(()=>unstartedReviewBasis(x.h.store,x.h.store.run(x.r.id)));});
+for(const value of [undefined,null,''])test('no-turn basis refuses missing/null/empty process identity '+String(value),async t=>{const x=await unstartedReviewFixture(t);for(const kind of ['OwnedProcessIntent','OwnedProcessCleanup']){const row=x.h.store.records(x.p.id,kind).at(-1),data={...row.data};if(value===undefined)delete data.processId;else data.processId=value;x.h.store.db.prepare('UPDATE records SET data=? WHERE id=?').run(JSON.stringify(data),row.id);}assert.throws(()=>unstartedReviewBasis(x.h.store,x.h.store.run(x.r.id)));});

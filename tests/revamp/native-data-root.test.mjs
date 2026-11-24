@@ -1,0 +1,14 @@
+// OFFLINE private operator/store fixtures. No formal ledger, real credentials or model calls.
+import test from 'node:test';import assert from 'node:assert/strict';import {mkdirSync,writeFileSync,existsSync,copyFileSync} from 'node:fs';import {join} from 'node:path';
+import {harness,root} from '../helpers.mjs';import {NativeOwner} from '../../dist/server/native-owner.js';import {Store} from '../../dist/server/store.js';import {createApp} from '../../dist/server/http.js';import {hash} from '../../dist/server/security.js';
+function privateOperator(h){mkdirSync(join(h.dir,'config'),{recursive:true});const authority=join(h.dir,'authority.json'),bytes=JSON.stringify({scopeId:'SYNTHETIC_DATA_ROOT',authorizationHash:'NO_MODEL_AUTHORIZATION',totalMicros:50000000,probeMicros:5000000,warningMicros:40000000,maxInFlight:1,maxRepairs:2});writeFileSync(authority,bytes);writeFileSync(join(h.dir,'config/native-owner.local.json'),JSON.stringify({schema:'dream-maker.native-owner.v1',scopeRoot:h.dir,authority:{path:authority,sha256:hash(bytes)},prices:{},maxRequests:8,maxOutputTokens:128}));return join(h.dir,'.runtime/controller/native-budget.sqlite');}
+test('an application data copy cannot open the controller ledger bound to the source root',t=>{
+ let owner;t.after(()=>owner?.close());const h=harness(t),ledger=privateOperator(h);owner=new NativeOwner({root:h.dir,store:h.store,getConfig:()=>h.config,applicationDataRoot:join(h.dir,'data-copy')});assert.equal(existsSync(ledger),false);assert.throws(()=>owner.assertReady('build'),{code:'NATIVE_DATA_ROOT_MISMATCH'});
+});
+test('the HTTP bootstrap propagates its exact data scope instead of acquiring another ledger',async t=>{
+ let app;t.after(()=>app?.close());const h=harness(t),ledger=privateOperator(h),data=join(h.dir,'data-copy');mkdirSync(data);mkdirSync(join(h.dir,'dist/web'),{recursive:true});copyFileSync(join(root,'dist/web/index.html'),join(h.dir,'dist/web/index.html'));
+ app=await createApp({root:h.dir,data,configPath:join(data,'config.json'),product:'dreamflow',port:0,paidRequestGuard:()=>{throw Error('NO_MODEL_ALLOWED');}});assert.equal(existsSync(ledger),false);assert.ok(app.engine.executionReadiness().reasons.includes('NATIVE_DATA_ROOT_MISMATCH'));
+});
+test('the original explicitly matching application data scope retains its existing private ledger',t=>{
+ let owner,store;t.after(async()=>{await owner?.close();store?.close();});const h=harness(t),ledger=privateOperator(h),data=join(h.dir,'.runtime');mkdirSync(data,{recursive:true});store=new Store(join(data,'dream-maker.sqlite'));owner=new NativeOwner({root:h.dir,store,getConfig:()=>h.config,applicationDataRoot:data});assert.equal(existsSync(ledger),true);assert.equal(owner.budget.requests().length,0);assert.throws(()=>owner.assertReady('build'),{code:'NATIVE_INTEGRATION_BLOCKED'});
+});

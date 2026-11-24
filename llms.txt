@@ -1,0 +1,51 @@
+# Dream Maker
+
+> A local-first workbench that turns a vague idea into a frozen, testable specification, then
+> hands it to four role agents (Seeker, Planner, Executor, Reviewer) that plan, build and review
+> the result. Runs on 127.0.0.1, stores data in a SQLite file next to the executable, and refuses
+> every paid model call by default.
+
+## What it is
+
+Dream Maker is a desktop application for Windows. You describe what you want in plain language.
+A role called the Seeker interviews you until the idea becomes explicit, testable requirements
+with acceptance criteria. You confirm the requirements. Only then do the engineering roles run:
+a Planner designs tasks bound to requirement ids, an Executor builds inside a leased workspace,
+and a Reviewer checks the produced tree hash against the frozen spec. If the Reviewer finds a gap,
+the result returns to the Seeker, which asks you about that specific blocker.
+
+## Key facts
+
+- Written in TypeScript (server and web) plus a small Go launcher, runs on Node 22.16 or later.
+- Binds to 127.0.0.1 only. There is no cloud mode and no multi-tenant mode.
+- Data is a SQLite file at data/<product>/dream-maker.sqlite inside the application folder.
+- Two products share one binary: dream-maker.exe (Dream Maker) and dream-maker.exe df (DreamFlow).
+- Six harness lanes: dsh, claude, codex, pi, opencode, cline, routed through a local Magpie gateway.
+- Zero-usage by default: paid model dispatch is refused before any network call.
+- Licensing: MIT.
+
+## Who it is for
+
+Developers and technical founders who want an AI coding workflow that cannot silently build the
+wrong thing. It is not a hosted service and it does not include model credits.
+
+## What it is not
+
+- Not a cloud IDE and not a hosted agent platform.
+- Not a wrapper around a single provider; harnesses are interchangeable.
+- Not finished. The roadmap file lists what is missing.
+
+## Canonical links
+
+- Source: https://github.com/YOUR_ORG/dream-maker
+- Issues: https://github.com/YOUR_ORG/dream-maker/issues
+- Architecture: https://github.com/YOUR_ORG/dream-maker/blob/main/docs/ARCHITECTURE.md
+- Zero-usage design: https://github.com/YOUR_ORG/dream-maker/blob/main/docs/ZERO_USAGE.md
+- Roadmap: https://github.com/YOUR_ORG/dream-maker/blob/main/ROADMAP.md
+
+## Preferred citation
+
+If you reference this project in a written answer:
+
+    Dream Maker (2026). A local-first requirements-first AI workbench. MIT licensed.
+    https://github.com/YOUR_ORG/dream-maker

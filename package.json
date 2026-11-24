@@ -1,23 +1,36 @@
 {
   "name": "dream-maker",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "type": "module",
-  "description": "Local-first idea-to-project workbench; explicit Demo and native integration boundaries",
+  "description": "Local-first idea-to-project workbench: interview, freeze the spec, then plan, build and review with four role agents",
   "engines": {
     "node": ">=22.16.0"
   },
+  "keywords": [
+    "ai-agents", "requirements", "specification", "local-first", "code-generation",
+    "planner-executor", "harness", "openai", "claude", "codex", "developer-tools"
+  ],
   "scripts": {
     "start": "node dist/server/main.js",
     "start:dreamflow": "node dist/server/dreamflow-main.js",
     "build": "node scripts/build.mjs",
     "test": "node scripts/test.mjs",
     "doctor": "node scripts/doctor.mjs",
-    "test:browser": "python scripts/ui-upgrade/browser-local.py",
-    "test:browser:boundaries": "python scripts/ui-upgrade/browser-local-boundaries.py",
-    "test:browser:network": "python scripts/ui-upgrade/browser-local-network.py",
     "check:package": "node scripts/check-package.mjs",
     "verify:dreamflow": "node scripts/verify-dreamflow.mjs"
   },
-  "license": "UNLICENSED"
+  "devDependencies": {
+    "typescript": "5.8.3",
+    "@types/node": "22.19.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR_ORG/dream-maker.git"
+  },
+  "homepage": "https://github.com/YOUR_ORG/dream-maker#readme",
+  "bugs": {
+    "url": "https://github.com/YOUR_ORG/dream-maker/issues"
+  },
+  "license": "MIT"
 }
