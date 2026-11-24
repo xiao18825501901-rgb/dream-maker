@@ -32,6 +32,16 @@ export class P1Planning {
         if(!current.activeRunId)return true;
         return canReviseAfterFlow(this.store,this.store.run(current.activeRunId));
     }
+    /** Records a terminal-but-reconcilable stop for one attempt. Idempotent: only a live attempt is changed. */
+    private stopBeforeRetry(pid:string,operationId:string,code:unknown):void{
+        const attempt=this.status(pid).find(e=>e.operationId===operationId);
+        if(!attempt||TERMINAL_PLANNING_STATES.has(attempt.state)||attempt.state==='STOPPED_RECONCILE_BEFORE_RETRY')return;
+        const reason=typeof code==='string'&&/^[A-Z_]{1,100}$/.test(code)?code:'PLANNING_FAILED_OR_RESULT_UNCERTAIN';
+        this.store.tx(()=>{
+            this.store.record('PlanningOperation',pid,null,{...attempt,state:'STOPPED_RECONCILE_BEFORE_RETRY',code:reason,at:now()});
+            this.store.event(pid,null,'planning.stopped',{operationId,previous:attempt.state,code:reason});
+        });
+    }
     /** Marks attempts that still own the project as abandoned. Reconcile and retry share this because both
      *  must leave the same evidence behind: the operation id and the state it was stuck in. */
     private abandonStalled(pid:string):string[]{
@@ -118,15 +128,26 @@ export class P1Planning {
             // An upstream reset is transient and the attempt left no draft, so it may be abandoned and retried
             // once with a fresh operation id and a fresh reservation. Anything else surfaces unchanged.
             const message=String((error as {message?:unknown}).message??'');
+            // A cancelled attempt must never become a second charged attempt. `cancel()` aborts this exact
+            // controller, and the resulting pipeline error can carry a retryable transport code, so the
+            // retry ladder used to fire on an operator cancellation and spend a second planning call.
+            // The abort is checked first, which is also the correct precedence: an explicit stop outranks
+            // any classification of why the stream ended.
+            const cancelled=controller.signal.aborted;
             // The pipeline wraps an unclassified upstream failure in PLANNING_FAILED_OR_RESULT_UNCERTAIN, so the
             // transport causes are named here as well; a retry is bounded to one attempt either way.
-            if(!retried&&/STREAM_INTERRUPTED|MODEL_OUTPUT_INCOMPLETE|PLANNING_FAILED_OR_RESULT_UNCERTAIN/.test(message)){
+            if(!retried&&!cancelled&&/STREAM_INTERRUPTED|MODEL_OUTPUT_INCOMPLETE|PLANNING_FAILED_OR_RESULT_UNCERTAIN/.test(message)){
                 this.abandonStalled(p.id);
                 if(this.jobs.get(p.id)?.controller===controller)this.jobs.delete(p.id);
                 process.stderr.write('PLANNING_SELF_LOCK_RELEASED '+JSON.stringify({projectId:p.id})+'\n');
                 process.stderr.write('PLANNING_RETRY '+JSON.stringify({projectId:p.id,reason:message.slice(0,80)})+'\n');
                 return this.plan({...this.store.project(p.id)},notes,persist,draft,true);
             }
+            // A refused plan used to leave the journal on DRAFTING_PLAN forever: the attempt still counts as
+            // live (so nothing new may start) but no state says why, and an operator cannot tell a running
+            // turn from a dead one. The stop is recorded before the error surfaces, with the real code, so
+            // reconciliation has something to reconcile and the UI has something true to show.
+            if(!cancelled)this.stopBeforeRetry(p.id,operationId,(error as {code?:unknown}).code);
             if(error instanceof DomainError)throw error;
             const code=(error as {code?:unknown}).code;
             // An unclassified pipeline failure used to surface only as PLANNING_FAILED_OR_RESULT_UNCERTAIN,
@@ -149,6 +170,13 @@ export class P1Planning {
             // unable to ever confirm again: acquire() refused, and reconcile() kept answering
             // NO_RECOVERABLE_DRAFT. Abandon is still evidence-bound — no live job, and the attempt must
             // already be terminal-or-stopped with no draft pointing at it.
+            // Abandoning exists for exactly one reason: a stuck attempt can block a later confirmation, and a
+            // stuck attempt that can never be proven is worse than an abandoned one. That reason disappears
+            // when a saved, immutable draft for this project already exists — nothing is blocked, and a stale
+            // journal line (a retried append, a bad input hash) proves nothing about work still in flight.
+            // Abandoning there would rewrite history for an outcome that is already settled and immutable.
+            const draftAlreadySaved=!!head&&p.specId===head.id&&!head.snapshot.stale;
+            if(draftAlreadySaved)return {status:'NO_RECOVERABLE_DRAFT' as const,abandoned:[]};
             const stalled=[...new Map(this.status(pid).filter(e=>TERMINAL_PLANNING_STATES.has(e.state)===false).map(e=>[e.operationId,e])).values()];
             if(stalled.length)this.store.tx(()=>{
                 for(const attempt of stalled){
