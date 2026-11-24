@@ -123,6 +123,22 @@ See [docs/ZERO_USAGE.md](docs/ZERO_USAGE.md).
 
 Data lives in `data/<product>/` next to the exe. Nothing is written to the registry.
 
+
+### Download
+
+[**v0.1.0 portable build**](https://github.com/xiao18825501901-rgb/dream-maker/releases/download/v0.1.0/DreamMakerSuite-Portable-0.1.0.zip) - 35.7 MB, no installer.
+
+SHA-256 of the zip:
+
+
+a8f0f04c004dde2d23114e0a107a49f7c239be7e994eddfcf58ed9d5b8cef818
+
+
+After unpacking, run Verify-Portable.ps1 first. It checks every file in the folder against
+RELEASE_MANIFEST.json and prints PASS_CORE_PORTABLE_ONLY when the bytes are intact.
+
+Windows will warn that the publisher is unknown. Code signing is pending CA review; the build is
+not signed yet and pretending otherwise would be worse than the warning.
 ### From source
 
 ```bash
