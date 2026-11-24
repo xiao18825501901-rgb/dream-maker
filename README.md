@@ -131,7 +131,7 @@ Data lives in `data/<product>/` next to the exe. Nothing is written to the regis
 SHA-256 of the zip:
 
 
-184c110c33a3b7982c475d13463fa67a591a8cbf48da5ac585001daec0a14034
+7b4fc18e4ca01cc2a7c1c9a725a0657700ec1f0a450ee898c6a178f133f75306
 
 
 After unpacking, run Verify-Portable.ps1 first. It checks every file in the folder against
