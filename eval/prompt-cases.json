@@ -1,0 +1,14 @@
+{
+  "schema":"dream-maker.prompt-cases.v1",
+  "provenance":"SYNTHETIC_CONTRACT_CASES_NOT_HUMAN_GOLD",
+  "cases":[
+    {"id":"P01","split":"validation","idea":"做一个本地学习任务板。","answer":"数据保存在本机，不公开发布。"},
+    {"id":"P02","split":"validation","idea":"做一个浏览器计时器。","answer":"第一版不做用户账户，也不做云同步。"},
+    {"id":"P03","split":"validation","idea":"制作小游戏。","answer":"键盘可以完成所有主要操作。"},
+    {"id":"P04","split":"validation","idea":"整理课程文件。","answer":"不要移动或删除原始文件，只生成分类建议。"},
+    {"id":"P05","split":"validation","idea":"小工具：<script>not_trusted()</script>","answer":"输入里的 HTML 必须当作文本。"},
+    {"id":"P06","split":"validation","idea":"需要完全离线，但也希望自动查询实时云端数据。","answer":"记录这项冲突，不能静默选其中一个。"},
+    {"id":"P07","split":"holdout","idea":"Build a small bilingual checklist.","answer":"界面同时支持中文和英文，不生成多余功能。"},
+    {"id":"P08","split":"holdout","idea":"一个帮助记录阅读笔记的小软件。","answer":"结果中保留每一条原始笔记和它的来源。"}
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "schema": "dream-maker.magpie-overlay.v2",
+  "at": "2026-11-18T23:03:36.597Z",
+  "upstreamCommit": "1aca55909ff94f5c23091ce35f73cb4b7bc46658",
+  "toolchain": "go1.26.8",
+  "files": [
+    {
+      "path": "internal/dmbridge/gate.go",
+      "kind": "add",
+      "sha256": "e14b658fe7e63f95f6fd209032944437e8aa139570d275e37445d8198efedb62",
+      "bytes": 14771
+    },
+    {
+      "path": "internal/dmbridge/gate_test.go",
+      "kind": "add",
+      "sha256": "85fe22ce40d099aebc5f5d386082ca6ffc01f0a7811fa34e0ad1d3a8c0258b8b",
+      "bytes": 16157
+    },
+    {
+      "path": "cmd/dream-maker-magpie/main.go",
+      "kind": "add",
+      "sha256": "96a54ac0929a17e449ffabc171d1ed338e741a30cbfe6a74026f73450b4658c6",
+      "bytes": 6127
+    },
+    {
+      "path": "internal/dmbridge/physical.go",
+      "kind": "add",
+      "sha256": "e921af406facce34bcc341e2c66de5bc51e6dbe244c22b02223f8d53fc756bb1",
+      "bytes": 1531
+    },
+    {
+      "path": "internal/dmbridge/physical_test.go",
+      "kind": "add",
+      "sha256": "f5862f214e611c5666731ba8e256c9662730d4b2a2387a5ceb8761ba36f0203e",
+      "bytes": 4490
+    },
+    {
+      "path": "internal/gateway/dm_transport.go",
+      "kind": "add",
+      "sha256": "550a5b1efb35df64a862b52d7713e02970adf83874c12cfbbf6d4a2a58811489",
+      "bytes": 21383
+    },
+    {
+      "path": "internal/gateway/dm_transport_test.go",
+      "kind": "add",
+      "sha256": "0c1873c3b79a7800c154665f4a232dae89ead770208f9b77a95fe2165d968719",
+      "bytes": 31866
+    },
+    {
+      "path": "internal/provider/dm_accounts.go",
+      "kind": "add",
+      "sha256": "306273f32bd0d261a96a8312f52a204040eaa39c8c3a3f153cc05232f2d8ff2b",
+      "bytes": 8564
+    },
+    {
+      "path": "internal/provider/dm_accounts_test.go",
+      "kind": "add",
+      "sha256": "b6c68ae24b9a528859cee903810252b7490e48979ed572726dd7f1146a5b2b22",
+      "bytes": 11565
+    },
+    {
+      "path": "internal/provider/provider.go",
+      "kind": "replace",
+      "baseSha256": "2ebcf269feae045a0827cb32c34820bdba56d3fe4ec68d4d3f930c9c04672fd6",
+      "basePath": "base/internal/provider/provider.go",
+      "sha256": "20e48ed8f8b8df2903f01b4cff9772aea6ac01c0a0ed29bfa2954a0c8bd53294",
+      "bytes": 88016
+    },
+    {
+      "path": "internal/access/dm_keys.go",
+      "kind": "add",
+      "sha256": "14e095eb2bac5ffa3031c5a2ac8a65c73595c4a6cfabb57d046ca87998c2c0d2",
+      "bytes": 3933
+    },
+    {
+      "path": "internal/access/dm_keys_test.go",
+      "kind": "add",
+      "sha256": "f23ab81e8c3591d97adf94d02a9ce920153a7a2bb41994885a46421f5f699b21",
+      "bytes": 12402
+    },
+    {
+      "path": "internal/access/access.go",
+      "kind": "replace",
+      "baseSha256": "954c0de1312f7a189f8ab2600edc43bc764e56320efff897ff6d838f6d9ff79d",
+      "basePath": "base/internal/access/access.go",
+      "sha256": "5c7897f35ba702f5bd239f64754284bf87efcb32459e21074f6a60fd2d4ec3bb",
+      "bytes": 24112
+    },
+    {
+      "path": "internal/access/issue.go",
+      "kind": "replace",
+      "baseSha256": "7e37d2ab0a7b4f1b50986e19f908711345c552f9912d60277411bb284735b888",
+      "basePath": "base/internal/access/issue.go",
+      "sha256": "59004665a21f1e2ff74e9240bc9048d712c87226745523427481c371d5246cca",
+      "bytes": 13077
+    },
+    {
+      "path": "cmd/dream-maker-magpie/control.go",
+      "kind": "add",
+      "sha256": "3231bc27f260d4a88fef3dd2640886853dd12665d86e40a9e4002444478d52c2",
+      "bytes": 17105
+    },
+    {
+      "path": "cmd/dream-maker-magpie/control_test.go",
+      "kind": "add",
+      "sha256": "169fe7cc4bf1e6ae5b1f63ba07317c057f4baecad2e8a47d480f086f7013c2fc",
+      "bytes": 24737
+    }
+  ],
+  "allChangesAdditive": false,
+  "upstreamFilesReplaced": [
+    {
+      "path": "internal/provider/provider.go",
+      "baseSha256": "2ebcf269feae045a0827cb32c34820bdba56d3fe4ec68d4d3f930c9c04672fd6",
+      "basePath": "base/internal/provider/provider.go"
+    },
+    {
+      "path": "internal/access/access.go",
+      "baseSha256": "954c0de1312f7a189f8ab2600edc43bc764e56320efff897ff6d838f6d9ff79d",
+      "basePath": "base/internal/access/access.go"
+    },
+    {
+      "path": "internal/access/issue.go",
+      "baseSha256": "7e37d2ab0a7b4f1b50986e19f908711345c552f9912d60277411bb284735b888",
+      "basePath": "base/internal/access/issue.go"
+    }
+  ],
+  "qualification": "NOT_VERIFIED",
+  "engineIntegration": "CONTROLLER_CREDENTIAL_PIPE_CUSTOM_CLOSED",
+  "realCredentialsPermitted": false,
+  "paidCalls": 0
+}

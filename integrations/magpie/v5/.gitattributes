@@ -1,0 +1,3 @@
+# Preserve manifest-pinned source bytes across Windows checkout settings.
+*.go -text
+SOURCE_MANIFEST.json -text

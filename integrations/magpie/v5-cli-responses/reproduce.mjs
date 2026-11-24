@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {copyFileSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
+import {dirname, join, resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+
+const kit = dirname(fileURLToPath(import.meta.url));
+const frozen = resolve(kit, '../v5');
+const suite = 'F:/DreamMakerSuite';
+const go = join(suite, 'runtime/go1.26.8-windows-amd64/go/bin/go.exe');
+const digest = path => createHash('sha256').update(readFileSync(path)).digest('hex');
+const run = (exe, args, options) => execFileSync(exe, args, {encoding:'utf8', windowsHide:true, ...options});
+const originalBuilder = join(frozen, 'reproduce.mjs');
+assert.equal(digest(originalBuilder), '6866994f9015d96b6911d7b9c5f25614a128d09a686692140e871d6f24cd5514');
+const patch = join(kit, 'routes.patch');
+assert.equal(digest(patch), '8555668e40679a11d8ca9887a69937afae542afd76a3f9ced70b0bee2dd9c108');
+const base = JSON.parse(run(process.execPath,[originalBuilder,...process.argv.slice(2)],{stdio:['ignore','pipe','inherit']}).trim());
+const original = dirname(base.binary);
+const source = join(original,'source');
+const work = join(original,'cli-responses');
+mkdirSync(work);
+const changes = join(work,'changes');
+const mapping = JSON.parse(readFileSync(join(original,'overlay.json')));
+const targets = ['internal/dmbridge/gate.go','cmd/dream-maker-magpie/control.go'];
+for (const path of targets) {
+  const dest = join(changes,path);
+  mkdirSync(dirname(dest),{recursive:true});
+  copyFileSync(mapping.Replace[join(source,path)],dest);
+  mapping.Replace[join(source,path)] = dest;
+}
+run('git',['apply','--no-index','--whitespace=error',patch],{cwd:changes});
+const overlay = join(work,'overlay.json');
+writeFileSync(overlay, JSON.stringify(mapping),{flag:'wx'});
+const env = {...process.env, GOENV:'off', GOWORK:'off', GOPROXY:'off', GOSUMDB:'off', GOTOOLCHAIN:'local', GOTELEMETRY:'off', CGO_ENABLED:'0', GOMODCACHE:join(suite,'caches/go-mod-20261111'), GOCACHE:join(suite,'caches/go-build'), GOPATH:join(suite,'caches/go-path'), GOTMPDIR:join(suite,'temp'), GOFLAGS:'-p=2 -mod=readonly', DM_CONTROL_TEST_ROOT:work, DM_ACCOUNT_TEST_ROOT:work, DM_ISSUER_TEST_ROOT:work};
+const binary = join(work,'dream-maker-magpie.exe');
+run(go,['build','-overlay',overlay,'-buildvcs=false','-trimpath','-o',binary,'./cmd/dream-maker-magpie'],{cwd:source,env,stdio:'inherit'});
+const result = {binary,binarySHA256:digest(binary),frozenBinarySHA256:base.binarySHA256,patchSHA256:digest(patch),changed:Object.fromEntries(targets.map(path=>[path,digest(join(changes,path))]))};
+assert.equal(result.binarySHA256,'78a0fcf3cd84ec7a7b6febc16263aa743d5dc9f94ac76947053bc893b6a680e6');
+writeFileSync(join(work,'build.json'), JSON.stringify(result,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify(result));
+run(go,['test','-count=1','-overlay',overlay,'-buildvcs=false','./internal/dmbridge'],{cwd:source,env,stdio:'inherit'});
+run(go,['test','-count=1','-overlay',overlay,'-buildvcs=false','-run','TestDM|TestDreamMaker','./internal/gateway','./internal/provider','./internal/access','./cmd/dream-maker-magpie'],{cwd:source,env,stdio:'inherit'});
+writeFileSync(join(work,'regression.json'), JSON.stringify({status:'PASS',binarySHA256:result.binarySHA256,dmbridge:'all',filter:'TestDM|TestDreamMaker',packages:['internal/gateway','internal/provider','internal/access','cmd/dream-maker-magpie']},null,2)+'\n',{flag:'wx'});

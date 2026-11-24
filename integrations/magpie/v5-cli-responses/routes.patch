@@ -1,0 +1,25 @@
+diff --git a/internal/dmbridge/gate.go b/internal/dmbridge/gate.go
+--- a/internal/dmbridge/gate.go
++++ b/internal/dmbridge/gate.go
+@@ -425,5 +425,9 @@ func ExplicitRouteAllowed(a Admission) bool {
+ 	switch a.Protocol {
+ 	case "openai-responses":
++		if a.Runtime == "opencode" || a.Runtime == "cline" {
++			return supervisor && a.RoleID == a.Role
++		}
++		// Subscription admission is checked separately and still requires Codex.
+ 		return supervisor && a.Runtime == "codex"
+ 	case "anthropic-messages":
+ 		return a.Runtime == "dsh" || supervisor && a.Runtime == "claude"
+diff --git a/cmd/dream-maker-magpie/control.go b/cmd/dream-maker-magpie/control.go
+--- a/cmd/dream-maker-magpie/control.go
++++ b/cmd/dream-maker-magpie/control.go
+@@ -405,4 +405,8 @@ func accountAllowsRoute(account registeredAccount, a dmbridge.Admission) bool {
+ 	if len(account.Capabilities) == 0 {
++		// These CLI routes require a protocol and endpoint on the selected account.
++		if a.Protocol == "openai-responses" && (a.Runtime == "opencode" || a.Runtime == "cline") {
++			return false
++		}
+ 		return accountAllowsModel(account, a.Model)
+ 	}
+ 	if !dmbridge.ExplicitRouteAllowed(a) {

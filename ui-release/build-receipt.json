@@ -1,0 +1,173 @@
+{
+  "schema": "dream-maker.ui-public-build.v1",
+  "builtAt": "2026-10-11T16:42:30.876Z",
+  "node": "v24.19.0",
+  "platform": "win32",
+  "entry": "demo-entry.js",
+  "sourceFiles": [
+    {
+      "path": "src/web/app.ts",
+      "sha256": "2e07e547c60637748f9edec8ef3165d1113f03c29e44c0eb6642cb8d49ae2e33"
+    },
+    {
+      "path": "src/web/contracts.ts",
+      "sha256": "a699044788f6ef8a0b8750419f745f07dca4bf564053f39e205fc140fb4dc772"
+    },
+    {
+      "path": "src/web/demo-api.ts",
+      "sha256": "dd04e14f8d682083294cdc0a21891d1e1bacf7840035744cf614f66e7bfbfe45"
+    },
+    {
+      "path": "src/web/demo-entry.ts",
+      "sha256": "7626c7be2a1effe2883283b7caa9f1e9bb3c92579d34eaa24e4035498ea35fed"
+    },
+    {
+      "path": "src/web/dom.ts",
+      "sha256": "ef2899397addfc5a8c2d65ad34f7f8e28537d06452beec5e3b8bd2e0cbe21def"
+    },
+    {
+      "path": "src/web/index.html",
+      "sha256": "4971c70e66316796d97325d316dd72749cac2bab5dba496b2f0f8262ce2a6db9"
+    },
+    {
+      "path": "src/web/local-api.ts",
+      "sha256": "4765ae4dac20b322e5a0857cafd8333a837d5dcc0f2bfb66fe50b3d316f01c69"
+    },
+    {
+      "path": "src/web/sample/sample.css",
+      "sha256": "a9677771cc797cce764c5b6e3a6f7ce779ce0626a5d168b8f22616f688f82217"
+    },
+    {
+      "path": "src/web/sample/sample.html",
+      "sha256": "ec64738f413a1a690f0b59047120a29732d7cf2fdd9b2300b092f4d8241d5783"
+    },
+    {
+      "path": "src/web/sample/sample.js",
+      "sha256": "55f1112dd4ffd26551a4a1db204a0dd9033a99e9c898d798375d535c8e0a02e7"
+    },
+    {
+      "path": "src/web/style.css",
+      "sha256": "8462374f434d3ccfa33b4834e10811c1d26d835d251706a4c3718eec5b6402a3"
+    },
+    {
+      "path": "src/web/ui.ts",
+      "sha256": "1d5e80ae31c08a1338e141cc0c7c9f87480fdd2549ac5c6b9212dfae0c5459bb"
+    },
+    {
+      "path": "src/web/views.ts",
+      "sha256": "b26197e9345d23c54cbf3ba9c4182e7a5164410dec1b2347aee3e9338ddefb96"
+    }
+  ],
+  "allowlist": [
+    "index.html",
+    "style.css",
+    "contracts.js",
+    "dom.js",
+    "views.js",
+    "ui.js",
+    "demo-api.js",
+    "demo-entry.js",
+    "sample.html",
+    "sample.css",
+    "sample.js",
+    "404.html",
+    "_redirects",
+    "_headers",
+    "NOTICE.txt"
+  ],
+  "files": [
+    {
+      "path": "404.html",
+      "bytes": 386,
+      "gzipBytes": 349,
+      "sha256": "12ca9288c94254652ac7c7666472dedad8b3bd1393d4c085b273665395b4be65"
+    },
+    {
+      "path": "contracts.js",
+      "bytes": 3715,
+      "gzipBytes": 1692,
+      "sha256": "be56c8b4d03c599c300db4a962a13f80a579056d7052c62a57837ff1c7caeafc"
+    },
+    {
+      "path": "demo-api.js",
+      "bytes": 22678,
+      "gzipBytes": 8238,
+      "sha256": "691cc3b145ed977b17c8d7f2726d8d1d7c3f3a8bd753db176e76c9716b8dfd85"
+    },
+    {
+      "path": "demo-entry.js",
+      "bytes": 257,
+      "gzipBytes": 195,
+      "sha256": "7626c7be2a1effe2883283b7caa9f1e9bb3c92579d34eaa24e4035498ea35fed"
+    },
+    {
+      "path": "dom.js",
+      "bytes": 3575,
+      "gzipBytes": 1342,
+      "sha256": "11aa72d6aabf1f8cbdd9ecab3e6d2f9d5e9e4fe2eea41d1bf5ee5f7f309b9cbc"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1001,
+      "gzipBytes": 640,
+      "sha256": "389a514214f8d9421439ca71ed408e7883ae4d79a7a1b0c76154d332c7733f4d"
+    },
+    {
+      "path": "NOTICE.txt",
+      "bytes": 2876,
+      "gzipBytes": 1556,
+      "sha256": "39da332fd890c55501234a5959524740e47238dd493e5b96286a4867c433914e"
+    },
+    {
+      "path": "sample.css",
+      "bytes": 1254,
+      "gzipBytes": 651,
+      "sha256": "a9677771cc797cce764c5b6e3a6f7ce779ce0626a5d168b8f22616f688f82217"
+    },
+    {
+      "path": "sample.html",
+      "bytes": 859,
+      "gzipBytes": 617,
+      "sha256": "ec64738f413a1a690f0b59047120a29732d7cf2fdd9b2300b092f4d8241d5783"
+    },
+    {
+      "path": "sample.js",
+      "bytes": 1359,
+      "gzipBytes": 738,
+      "sha256": "55f1112dd4ffd26551a4a1db204a0dd9033a99e9c898d798375d535c8e0a02e7"
+    },
+    {
+      "path": "style.css",
+      "bytes": 29892,
+      "gzipBytes": 7492,
+      "sha256": "8462374f434d3ccfa33b4834e10811c1d26d835d251706a4c3718eec5b6402a3"
+    },
+    {
+      "path": "ui.js",
+      "bytes": 32764,
+      "gzipBytes": 8542,
+      "sha256": "9c096b4ed0bc43c1f483c5057e5b52c96095a33ff34f92f3f59330e34ca33476"
+    },
+    {
+      "path": "views.js",
+      "bytes": 35479,
+      "gzipBytes": 12729,
+      "sha256": "4ff8e5e1be0402e6a7ab42979d4bddce9ffd1f56139e29c76eb6e0d6d0d8cd8d"
+    },
+    {
+      "path": "_headers",
+      "bytes": 473,
+      "gzipBytes": 281,
+      "sha256": "4f3449f886370bf29d44f61bf0eb290ff62124751a318a1d7f4b67b9a6f4df5f"
+    },
+    {
+      "path": "_redirects",
+      "bytes": 77,
+      "gzipBytes": 69,
+      "sha256": "1f88e4d0520865689c983e56ae96c6ca3ec98727d52b594424b3798924330186"
+    }
+  ],
+  "bytes": 136645,
+  "gzipBytes": 45131,
+  "security": "STATIC_CHECK_ONLY; deployed CSP pending"
+}

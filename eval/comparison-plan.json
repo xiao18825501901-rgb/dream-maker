@@ -1,0 +1,9 @@
+{
+  "schema":"dream-maker.laya-comparison-plan.v1",
+  "status":"NOT_RUN",
+  "arms":{"A":"baseline without context enhancement","B":"deterministic selection/cache only","C":"same deterministic path plus Laya"},
+  "requiredControls":["identical input digest per case","identical starting code snapshot","identical role model versions","matched repeat IDs","separate cold and warm cache runs","same success criteria and independent verification"],
+  "metrics":["verified business success","requirement omissions","repair rounds","cloud input and output tokens","reported cost or unknown","wall latency","Laya latency and abstention"],
+  "minimumRecordFields":["caseId","repeat","arm","inputDigest","codeBaseHash","modelMapHash","cacheState","success","latencyMs","inputTokens","outputTokens","costUsd","evidenceRefs"],
+  "notes":["No improvement percentage is reported without real matched runs.","Synthetic labels are not human Gold.","Changing a snapshot requires rerunning the comparison.","Cost remains null when usage or pricing is missing."]
+}

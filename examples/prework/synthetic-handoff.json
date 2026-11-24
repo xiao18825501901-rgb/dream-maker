@@ -1,0 +1,179 @@
+{
+  "schema": "dm.prework.synthetic-fixture.v1",
+  "synthetic": true,
+  "eligibleForLiveAcceptance": false,
+  "context": {
+    "projectId": "synthetic-project",
+    "flowId": "synthetic-flow",
+    "planId": "synthetic-plan",
+    "planVersion": 1,
+    "planHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "approvedAt": "2026-11-13T00:00:00+08:00",
+    "sourceEpoch": "synthetic-epoch",
+    "baselineHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "plannerSession": "synthetic-p2",
+    "plannerRuntime": "SYNTHETIC",
+    "requirements": [
+      {
+        "id": "R1",
+        "acceptance": [
+          "记录合成条目"
+        ]
+      },
+      {
+        "id": "R2",
+        "acceptance": [
+          "汇总合成结果"
+        ]
+      }
+    ],
+    "tasks": [
+      {
+        "id": "T1",
+        "dependsOn": [],
+        "requirementIds": [
+          "R1",
+          "R2"
+        ],
+        "acceptance": [
+          "记录合成条目",
+          "汇总合成结果"
+        ],
+        "writePaths": [
+          "main.mjs"
+        ]
+      }
+    ],
+    "mode": "demo"
+  },
+  "contract": {
+    "schema": "dm.prework.handoff.v1",
+    "projectId": "synthetic-project",
+    "flowId": "synthetic-flow",
+    "planBinding": {
+      "planId": "synthetic-plan",
+      "version": 1,
+      "contentDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "approvedAt": "2026-11-13T00:00:00+08:00"
+    },
+    "sourceEpoch": "synthetic-epoch",
+    "baseline": {
+      "candidateId": "baseline_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "kind": "source-snapshot",
+      "tree": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "snapshotRef": "synthetic-baseline",
+      "observedAt": "2026-11-13T00:00:00+08:00",
+      "state": "consistent"
+    },
+    "planner2": {
+      "role": "planner2",
+      "runtime": "SYNTHETIC",
+      "sessionRef": "synthetic-p2"
+    },
+    "requirements": [
+      {
+        "requirementId": "R1",
+        "planRequirementRef": "synthetic-plan:R1",
+        "workPackageIds": [
+          "wp_T1"
+        ],
+        "targetEvidence": "E2",
+        "targetReview": "R0",
+        "reachable": true,
+        "acceptance": [
+          "记录合成条目"
+        ]
+      },
+      {
+        "requirementId": "R2",
+        "planRequirementRef": "synthetic-plan:R2",
+        "workPackageIds": [
+          "wp_T1"
+        ],
+        "targetEvidence": "E2",
+        "targetReview": "R0",
+        "reachable": true,
+        "acceptance": [
+          "汇总合成结果"
+        ]
+      }
+    ],
+    "workPackages": [
+      {
+        "workPackageId": "wp_T1",
+        "taskId": "T1",
+        "dependsOn": [],
+        "requirementIds": [
+          "R1",
+          "R2"
+        ],
+        "readPaths": [
+          "main.mjs"
+        ],
+        "writePaths": [
+          "main.mjs"
+        ],
+        "denyPaths": [
+          ".runtime/",
+          ".git/",
+          "node_modules/"
+        ],
+        "inputs": [
+          "synthetic-plan"
+        ],
+        "outputs": [
+          "main.mjs"
+        ],
+        "checks": [
+          "记录合成条目",
+          "汇总合成结果"
+        ],
+        "stopConditions": [
+          "binding-changed",
+          "scope-exceeded",
+          "result-uncertain"
+        ],
+        "retryPolicy": "reconcile-before-retry",
+        "mergePolicy": "single-coordinator",
+        "sharedResources": [],
+        "resourceClaims": {
+          "authority": "ORIGINAL_ENGINE_DISPATCH",
+          "executorSlots": 2,
+          "maxConcurrentTools": 1
+        }
+      }
+    ],
+    "reviewPlan": {
+      "required": true,
+      "targetIndependence": "R0",
+      "reviewerRole": "reviewer",
+      "coverage": [
+        "R1",
+        "R2"
+      ]
+    },
+    "evidencePolicy": {
+      "immutableOutputs": [
+        {
+          "artifact": "work-package-results",
+          "writer": "controller",
+          "strategy": "append-only"
+        },
+        {
+          "artifact": "review-packet",
+          "writer": "controller",
+          "strategy": "append-only"
+        }
+      ],
+      "controlCopies": [],
+      "artifactRoot": "prework/synthetic-epoch/synthetic-flow/prework_9aed8dcf179adf1c0b453df997b4f47efa17991ffb7ab860f5b8a1b65356e391"
+    },
+    "forecast": {
+      "bestReachableEvidence": "E2",
+      "disclosures": []
+    },
+    "status": "ready-for-dispatch",
+    "createdAt": "2026-11-12T19:45:47.529Z",
+    "contractId": "prework_9aed8dcf179adf1c0b453df997b4f47efa17991ffb7ab860f5b8a1b65356e391"
+  }
+}

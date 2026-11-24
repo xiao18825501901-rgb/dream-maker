@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>学习任务板 · Dream Maker Demo</title><link rel="stylesheet" href="style.css"></head>
+<body><main>
+<header><span class="eyebrow">DREAM MAKER / DEMO PROJECT</span><h1>把今天的目标<br>变成完成的事情。</h1><p id="storage-scope">学习任务板 · 正在核对数据保存范围</p></header>
+<section>
+<div id="add-form" role="group" aria-label="添加学习任务"><label for="title">下一件想完成的事</label><div class="row"><input id="title" name="title" maxlength="120" placeholder="例如：独立复现一个 Agent 工具调用" required><button id="add-task" type="button">添加任务</button></div></div>
+<p id="error" role="alert"></p>
+<div id="recovery" hidden><p>本页内容可以先复制留存。读取保存版本会替换当前页面中的任务，不会自动合并。</p><button id="export-tasks" type="button">查看并复制当前页面任务</button><label for="task-copy" id="task-copy-label" hidden>可复制的任务副本（JSON）</label><textarea id="task-copy" readonly hidden></textarea><label><input id="reload-consent" type="checkbox">我已保留需要的内容，确认用已保存版本替换当前页面。</label><button id="reload-tasks" type="button" disabled>重新核对并读取保存版本</button></div>
+<div class="toolbar"><strong id="stats"></strong><select id="filter" aria-label="筛选任务"><option value="all">全部</option><option value="active">未完成</option><option value="done">已完成</option></select></div>
+<ul id="tasks"></ul><p id="empty">从一件小事开始。</p>
+</section>
+<footer>这是固定演示样例，不是 Live Agent 自动创作的证明。<span id="storage-help">数据保存范围以核对结果为准。</span></footer>
+</main><script type="module" src="app.mjs"></script></body></html>

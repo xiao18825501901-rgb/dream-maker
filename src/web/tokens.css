@@ -1,0 +1,49 @@
+/* Hallmark · app: Dream Maker / DreamFlow · genre: modern-minimal · theme: Dusk adapted · shape: app screen · v2.0.0 */
+/* Critique: the old gold-on-slate shell made every surface equally important; this system uses density, rules and two state signals. */
+:root {
+  color-scheme: dark;
+  font-size: 16px;
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 32px; --space-2xl: 48px; --space-3xl: 64px; --space-4xl: 96px;
+  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 0.9375rem; --text-lg: 1rem; --text-xl: 1rem; --text-2xl: 1.125rem; --text-3xl: 1.266rem; --text-4xl: 1.424rem; --text-5xl: 1.602rem; --text-6xl: 1.802rem;
+  --text-display-s: 1.424rem; --text-display: 1.802rem; --text-section: 1.266rem; --text-title: 1rem; --text-lead: 0.9375rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+  --container: 1440px; --gutter: 24px; --gap-columns: 24px; --section-gap-s: 48px; --section-gap: 64px; --section-gap-l: 96px;
+  --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
+  --color-paper: oklch(16.5% 0.012 264);
+  --color-paper-2: oklch(19.5% 0.014 264);
+  --color-paper-3: oklch(23% 0.016 264);
+  --color-paper-4: oklch(27% 0.018 264);
+  --color-ink: oklch(94% 0.008 75);
+  --color-ink-2: oklch(85% 0.011 264);
+  --color-muted: oklch(72% 0.014 264);
+  --color-subtle: oklch(61% 0.015 264);
+  --color-rule: oklch(34% 0.018 264);
+  --color-rule-soft: oklch(27% 0.016 264);
+  --color-light: oklch(99% 0.004 75);
+  --color-shade: oklch(10% 0.014 264);
+  --color-accent: oklch(77% 0.11 274);
+  --color-accent-ink: oklch(19% 0.035 274);
+  --color-accent-hi: oklch(84% 0.085 274);
+  --color-accent-deep: oklch(48% 0.13 274);
+  --color-accent-soft: oklch(91% 0.038 274);
+  --color-focus: oklch(83% 0.13 274);
+  --color-pending: oklch(83% 0.095 62);
+  --color-pending-ink: oklch(25% 0.045 62);
+  --color-success: oklch(76% 0.095 158);
+  --color-warning: oklch(83% 0.095 62);
+  --color-error: oklch(72% 0.15 27);
+  --color-well: oklch(94.5% 0.009 75);
+  --color-well-2: oklch(90% 0.012 75);
+  --color-well-ink: oklch(21% 0.016 264);
+  --color-well-muted: oklch(44% 0.018 264);
+  --color-well-rule: oklch(82% 0.014 75);
+  --color-overlay: oklch(7% 0.015 264 / 0.82);
+  --shadow-raised: 0 16px 42px -24px oklch(4% 0.01 264 / 0.7);
+  --shadow-modal: 0 28px 80px -32px oklch(3% 0.01 264 / 0.9);
+  --font-display: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  --radius-card: 8px; --radius-inner: 6px; --radius-control: 6px; --radius-pill: 999px; --rule-hair: 1px;
+  --tracking-display: 0; --display-weight: 620; --body-weight: 400; --strong-weight: 650;
+}

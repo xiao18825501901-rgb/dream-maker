@@ -1,0 +1,11 @@
+const origin = "http://127.0.0.1:4317";
+const boot = process.argv[2];
+const login = await fetch(origin + "/api/session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ bootstrap: boot }) });
+const cookie = (login.headers.get("set-cookie") ?? "").split(";")[0];
+const p = await (await fetch(origin + "/api/projects/project_a423df0f7d502643142a", { headers: { cookie } })).json();
+const q = p.project?.questions ?? p.project?.answers ?? [];
+console.log("QUESTIONS", Array.isArray(q) ? q.length : "n/a");
+const first = Array.isArray(q) && q.length ? q[0] : null;
+console.log("FIRST", JSON.stringify(first).slice(0, 300));
+const events = (p.records ?? []).filter(r => /kimi|planner1/i.test(JSON.stringify(r))).slice(-3);
+console.log("KIMI_RECORDS", JSON.stringify(events).slice(0, 400));

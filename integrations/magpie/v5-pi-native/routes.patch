@@ -1,0 +1,63 @@
+diff --git a/internal/dmbridge/gate.go b/internal/dmbridge/gate.go
+index c9e99aa..f57416f 100644
+--- a/internal/dmbridge/gate.go
++++ b/internal/dmbridge/gate.go
+@@ -421,6 +421,9 @@ func ExplicitRouteAllowed(a Admission) bool {
+ 	if a.Authentication != "api_key" || a.SubscriptionRequestHash != "" || a.Method != "POST" || a.Path != protocolPath(a.Protocol) {
+ 		return false
+ 	}
++	if a.Runtime == "pi" && (a.Protocol == "openai-responses" || a.Protocol == "anthropic-messages") {
++		return a.Role == "executor" && a.RoleID != "" && a.RoleID != "planner2" && a.RoleID != "reviewer"
++	}
+ 	supervisor := a.Role == "planner2" || a.Role == "reviewer"
+ 	switch a.Protocol {
+ 	case "openai-responses":
+diff --git a/cmd/dream-maker-magpie/control.go b/cmd/dream-maker-magpie/control.go
+index 5d3da67..a4617a5 100644
+--- a/cmd/dream-maker-magpie/control.go
++++ b/cmd/dream-maker-magpie/control.go
+@@ -405,7 +405,7 @@ func (c *credentialControl) allowed(a dmbridge.Admission) bool {
+ func accountAllowsRoute(account registeredAccount, a dmbridge.Admission) bool {
+ 	if len(account.Capabilities) == 0 {
+ 		// These CLI routes require a protocol and endpoint on the selected account.
+-		if a.Protocol == "openai-responses" && (a.Runtime == "opencode" || a.Runtime == "cline") {
++		if a.Runtime == "pi" && (a.Protocol == "openai-responses" || a.Protocol == "anthropic-messages") || a.Protocol == "openai-responses" && (a.Runtime == "opencode" || a.Runtime == "cline") {
+ 			return false
+ 		}
+ 		return accountAllowsModel(account, a.Model)
+diff --git a/internal/gateway/dm_explicit.go b/internal/gateway/dm_explicit.go
+index 86afea7..91bdb3c 100644
+--- a/internal/gateway/dm_explicit.go
++++ b/internal/gateway/dm_explicit.go
+@@ -31,6 +31,13 @@ func dmExplicitBody(a dmbridge.Admission, raw []byte, model string) error {
+ 	if err != nil || json.Unmarshal(fields["model"], &actual) != nil || actual != model {
+ 		return dmTargetDenied
+ 	}
++	if piNative(a) {
++		_, ok := piRequest(a, raw)
++		if !ok {
++			return dmTargetDenied
++		}
++		return nil
++	}
+ 	switch a.Protocol {
+ 	case "openai-responses":
+ 		if len(raw) > 262144 {
+@@ -185,7 +192,16 @@ func (s *Server) dmSendExplicit(w http.ResponseWriter, r *http.Request, a dmbrid
+ 	if json.Unmarshal(fields[maxField], &maximum) != nil || u.Input < 0 || u.CacheRead < 0 || u.CacheWrite < 0 || u.Output < 0 || int64(u.Input) > a.MaxInputTokens || int64(u.CacheRead) > a.MaxInputTokens-int64(u.Input) || int64(u.CacheWrite) > a.MaxInputTokens-int64(u.Input)-int64(u.CacheRead) || int64(u.Output) > maximum {
+ 		return dmTargetDenied
+ 	}
+-	if a.Protocol == "openai-responses" {
++	if piNative(a) {
++		declared, ok := piRequest(a, raw)
++		if !ok {
++			return dmTargetDenied
++		}
++		reply, err = piTranscript(reply, a, maximum, declared)
++		if err != nil {
++			return err
++		}
++	} else if a.Protocol == "openai-responses" {
+ 		reply, err = dmResponsesTranscript(reply, a, maximum)
+ 		if err != nil {
+ 			return err

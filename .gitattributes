@@ -1,0 +1,4 @@
+# Preserve raw assertion formatting only for the named captured evidence.
+docs/codex-admission/evidence/deadline-red-20261012.txt whitespace=-blank-at-eol,cr-at-eol
+docs/gateway-response/evidence/red-20261013.txt whitespace=-blank-at-eol,cr-at-eol
+docs/gateway-response/evidence/secret-red-20261013.txt whitespace=-blank-at-eol,cr-at-eol

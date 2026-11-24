@@ -1,0 +1,10 @@
+const origin = "http://127.0.0.1:4317";
+const boot = process.argv[2];
+const login = await fetch(origin + "/api/session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ bootstrap: boot }) });
+const cookie = (login.headers.get("set-cookie") ?? "").split(";")[0];
+const b = await (await fetch(origin + "/api/projects/project_4157d68607a44f683f21", { headers: { cookie } })).json();
+const q = b.project?.questions ?? [];
+console.log("COUNT", q.length);
+console.log("Q0", JSON.stringify(q[0] ?? null).slice(0, 400));
+const kimi = (b.records ?? []).filter(r => JSON.stringify(r).includes("kimi")).slice(-2);
+console.log("KIMI_RECORDS", JSON.stringify(kimi).slice(0, 500));

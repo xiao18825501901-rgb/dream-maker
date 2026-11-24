@@ -1,0 +1,204 @@
+diff --git a/cmd/dream-maker-magpie/control.go b/cmd/dream-maker-magpie/control.go
+index 5b85127..3c379f8 100644
+--- a/cmd/dream-maker-magpie/control.go
++++ b/cmd/dream-maker-magpie/control.go
+@@ -403,6 +403,9 @@ func (c *credentialControl) allowed(a dmbridge.Admission) bool {
+ // accountAllowsModel keeps the single-model wire shape working while letting one
+ // provider credential serve the distinct models the owner rule needs.
+ func accountAllowsRoute(account registeredAccount, a dmbridge.Admission) bool {
++	if dmbridge.ClaudeOpenAIWire(a) && len(account.Capabilities) == 0 {
++		return false
++	}
+ 	if len(account.Capabilities) == 0 {
+ 		// These CLI routes require a protocol and endpoint on the selected account.
+ 		if a.Protocol == "openai-responses" && (a.Runtime == "opencode" || a.Runtime == "cline") {
+diff --git a/internal/dmbridge/gate.go b/internal/dmbridge/gate.go
+index 79507f1..329e57c 100644
+--- a/internal/dmbridge/gate.go
++++ b/internal/dmbridge/gate.go
+@@ -416,12 +416,20 @@ func (g *Gate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+ 	g.config.Handler.ServeHTTP(w, forwarded)
+ }
+ 
++// ClaudeOpenAIWire identifies the two explicit API-key wires for the read-only Claude adapter.
++func ClaudeOpenAIWire(a Admission) bool {
++	return a.Runtime == "claude" && (a.Protocol == "chat-completions" || a.Protocol == "openai-responses")
++}
++
+ // ExplicitRouteAllowed mirrors the control-plane runtime/wire matrix.
+ func ExplicitRouteAllowed(a Admission) bool {
+ 	if a.Authentication != "api_key" || a.SubscriptionRequestHash != "" || a.Method != "POST" || a.Path != protocolPath(a.Protocol) {
+ 		return false
+ 	}
+ 	supervisor := a.Role == "planner2" || a.Role == "reviewer"
++	if ClaudeOpenAIWire(a) {
++		return supervisor && a.RoleID == a.Role
++	}
+ 	switch a.Protocol {
+ 	case "openai-responses":
+ 		if a.Runtime == "opencode" || a.Runtime == "cline" {
+diff --git b/internal/gateway/dm_claude_chat.go b/internal/gateway/dm_claude_chat.go
+new file mode 100644
+index 0000000..8f7f3c2
+--- /dev/null
++++ b/internal/gateway/dm_claude_chat.go
+@@ -0,0 +1,115 @@
++package gateway
++
++import (
++	"encoding/json"
++	"strings"
++
++	"github.com/yetone/magpie/internal/dmbridge"
++)
++
++// The local Claude adapter emits a frozen, non-streaming system/user pair.
++// Validate the same shape before admission and after rewriting the physical model.
++func dmClaudeChatRequest(a dmbridge.Admission, raw []byte) error {
++	if len(raw) > 262144 {
++		return dmTargetDenied
++	}
++	fields, err := dmObject(raw, "model", "messages", "max_tokens", "stream")
++	if err != nil || string(fields["stream"]) != "false" {
++		return dmTargetDenied
++	}
++	var messages []json.RawMessage
++	if json.Unmarshal(fields["messages"], &messages) != nil || len(messages) != 2 {
++		return dmTargetDenied
++	}
++	for i, role := range []string{"system", "user"} {
++		message, err := dmObject(messages[i], "role", "content")
++		var actualRole, text string
++		if err != nil || json.Unmarshal(message["role"], &actualRole) != nil || actualRole != role || json.Unmarshal(message["content"], &text) != nil || strings.TrimSpace(text) == "" {
++			return dmTargetDenied
++		}
++	}
++	return dmFinalBudget(a, fields)
++}
++
++func dmClaudeCount(fields map[string]json.RawMessage, key string) (int, bool) {
++	var v *int
++	if json.Unmarshal(fields[key], &v) != nil || v == nil || *v < 0 {
++		return 0, false
++	}
++	return *v, true
++}
++
++func dmClaudeOptionalCount(fields map[string]json.RawMessage, key string, expected int) bool {
++	if fields[key] == nil {
++		return true
++	}
++	n, ok := dmClaudeCount(fields, key)
++	return ok && n == expected
++}
++
++func dmClaudeNoCacheWrites(fields map[string]json.RawMessage) bool {
++	for _, key := range []string{"cache_creation_input_tokens", "cache_write_tokens", "cache_creation_tokens"} {
++		if !dmClaudeOptionalCount(fields, key, 0) {
++			return false
++		}
++	}
++	return true
++}
++
++// Reconcile the native counters with the billed ledger. Missing counts, including
++// missing cache observations, must never silently become a successful zero.
++func dmClaudeChatUsage(raw json.RawMessage, u Usage) bool {
++	fields, err := dmbridge.RequestFields(raw)
++	input, inputOK := dmClaudeCount(fields, "prompt_tokens")
++	output, outputOK := dmClaudeCount(fields, "completion_tokens")
++	if err != nil || !inputOK || !outputOK || !dmClaudeNoCacheWrites(fields) || u.CacheWrite != 0 || output != u.Output || input != u.Input+u.CacheRead {
++		return false
++	}
++	var details map[string]json.RawMessage
++	if raw := fields["prompt_tokens_details"]; raw != nil {
++		details, err = dmbridge.RequestFields(raw)
++		if err != nil || !dmClaudeNoCacheWrites(details) {
++			return false
++		}
++	}
++	if fields["prompt_cache_hit_tokens"] == nil && details["cached_tokens"] == nil {
++		return false
++	}
++	return dmClaudeOptionalCount(details, "cached_tokens", u.CacheRead) && dmClaudeOptionalCount(fields, "prompt_cache_hit_tokens", u.CacheRead) && dmClaudeOptionalCount(fields, "prompt_cache_miss_tokens", u.Input) && dmClaudeOptionalCount(fields, "total_tokens", input+output)
++}
++
++func dmClaudeChatReply(raw []byte, model string, u Usage) bool {
++	// Duplicate members and escaped credentials have already been checked on raw.
++	fields, err := dmbridge.RequestFields(raw)
++	var id, object, served string
++	if err != nil || json.Unmarshal(fields["id"], &id) != nil || !dmResponseID.MatchString(id) || json.Unmarshal(fields["object"], &object) != nil || object != "chat.completion" || json.Unmarshal(fields["model"], &served) != nil || served != model || fields["error"] != nil && string(fields["error"]) != "null" {
++		return false
++	}
++	var choices []json.RawMessage
++	if json.Unmarshal(fields["choices"], &choices) != nil || len(choices) != 1 {
++		return false
++	}
++	choice, err := dmObject(choices[0], "index", "finish_reason", "message", "logprobs")
++	if err != nil || string(choice["index"]) != "0" || string(choice["finish_reason"]) != "\"stop\"" {
++		return false
++	}
++	msg, err := dmObject(choice["message"], "role", "content", "refusal", "reasoning_content", "tool_calls", "function_call", "annotations")
++	var text string
++	if err != nil || string(msg["role"]) != "\"assistant\"" || json.Unmarshal(msg["content"], &text) != nil || strings.TrimSpace(text) == "" {
++		return false
++	}
++	for _, key := range []string{"refusal", "tool_calls", "function_call"} {
++		if msg[key] != nil && string(msg[key]) != "null" {
++			return false
++		}
++	}
++	var reasoning *string
++	if value := msg["reasoning_content"]; value != nil && json.Unmarshal(value, &reasoning) != nil {
++		return false
++	}
++	var annotations []json.RawMessage
++	if value := msg["annotations"]; value != nil && (json.Unmarshal(value, &annotations) != nil || len(annotations) != 0) {
++		return false
++	}
++	return dmClaudeChatUsage(fields["usage"], u)
++}
+diff --git a/internal/gateway/dm_explicit.go b/internal/gateway/dm_explicit.go
+index 86afea7..6ecb634 100644
+--- a/internal/gateway/dm_explicit.go
++++ b/internal/gateway/dm_explicit.go
+@@ -32,6 +32,10 @@ func dmExplicitBody(a dmbridge.Admission, raw []byte, model string) error {
+ 		return dmTargetDenied
+ 	}
+ 	switch a.Protocol {
++	case "chat-completions":
++		if a.Runtime == "claude" {
++			return dmClaudeChatRequest(a, raw)
++		}
+ 	case "openai-responses":
+ 		if len(raw) > 262144 {
+ 			return dmTargetDenied
+@@ -185,6 +189,9 @@ func (s *Server) dmSendExplicit(w http.ResponseWriter, r *http.Request, a dmbrid
+ 	if json.Unmarshal(fields[maxField], &maximum) != nil || u.Input < 0 || u.CacheRead < 0 || u.CacheWrite < 0 || u.Output < 0 || int64(u.Input) > a.MaxInputTokens || int64(u.CacheRead) > a.MaxInputTokens-int64(u.Input) || int64(u.CacheWrite) > a.MaxInputTokens-int64(u.Input)-int64(u.CacheRead) || int64(u.Output) > maximum {
+ 		return dmTargetDenied
+ 	}
++	if a.Runtime == "claude" && a.Protocol == "chat-completions" && !dmClaudeChatReply(reply, a.Model, u) {
++		return dmTargetDenied
++	}
+ 	if a.Protocol == "openai-responses" {
+ 		reply, err = dmResponsesTranscript(reply, a, maximum)
+ 		if err != nil {
+diff --git a/internal/gateway/dm_response_stream.go b/internal/gateway/dm_response_stream.go
+index 3eb6322..9f40f49 100644
+--- a/internal/gateway/dm_response_stream.go
++++ b/internal/gateway/dm_response_stream.go
+@@ -140,6 +140,14 @@ func dmResponsesTranscript(raw []byte, a dmbridge.Admission, limit int64) ([]byt
+ 			if er != nil {
+ 				return nil, dmTargetDenied
+ 			}
++			if a.Runtime == "claude" && e.Type == "response.completed" {
++				usage, err := dmbridge.RequestFields(response["usage"])
++				details, detailErr := dmbridge.RequestFields(usage["input_tokens_details"])
++				_, cacheKnown := dmClaudeCount(details, "cached_tokens")
++				if strings.TrimSpace(text.String()) == "" || err != nil || detailErr != nil || !cacheKnown || !dmClaudeNoCacheWrites(usage) || !dmClaudeNoCacheWrites(details) {
++					return nil, dmTargetDenied
++				}
++			}
+ 			response["model"], _ = json.Marshal(a.Provider + "/" + a.Model)
+ 			fields["response"], _ = json.Marshal(response)
+ 			data, _ = json.Marshal(fields)

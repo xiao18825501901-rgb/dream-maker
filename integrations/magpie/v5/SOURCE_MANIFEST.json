@@ -1,0 +1,242 @@
+{
+  "schema": "dream-maker.magpie-v5-portable-source.v1",
+  "upstreamCommit": "1aca55909ff94f5c23091ce35f73cb4b7bc46658",
+  "goVersion": "go1.26.8",
+  "goBinary": "21761eceb9302062c9623fb699f332c8c7fe000f15f70efe8da01a2cfbbc16b9",
+  "modules": {
+    "go.mod": "ceee19c55b785efed15d4e68ad3fae4159d42defc28779a3193f8146f79fba57",
+    "go.sum": "e756a619852f2d5dff86fd0bf2454d1328987efc03fe573761bb68deac645447"
+  },
+  "originManifestSHA256": "bd5d24d7bcfa9532ae2b336e0573e9277739eaa5e12a5a3c5a53d3db9fd325d3",
+  "expectedBinarySHA256": "15ac29455f506ddd67238e9b553c4fd3c6f9354ed0c8c6a979527b8011777ef8",
+  "appliedBase": [
+    {
+      "path": "internal/access/access.go",
+      "sha256": "5c7897f35ba702f5bd239f64754284bf87efcb32459e21074f6a60fd2d4ec3bb",
+      "input": "overlay/internal/access/access.go"
+    },
+    {
+      "path": "internal/access/issue.go",
+      "sha256": "59004665a21f1e2ff74e9240bc9048d712c87226745523427481c371d5246cca",
+      "input": "overlay/internal/access/issue.go"
+    },
+    {
+      "path": "internal/gateway/fallback.go",
+      "sha256": "e1b48b7a542712f304b3b82d39224faf4eef529b69533aec0c0dfdda2db1df61",
+      "input": "base/internal/gateway/fallback.go"
+    },
+    {
+      "path": "internal/gateway/gateway.go",
+      "sha256": "8bbce1fff5abb4164c3fdafb3e32119281a029adaae14d1d8b710b9adf8d86da",
+      "input": "base/internal/gateway/gateway.go"
+    },
+    {
+      "path": "internal/gateway/stream_uncounted_test.go",
+      "sha256": "d8d26b53c1a1becdbb7930e365c1d6d5ba8f964c36c201d87a9eba1fa6041738",
+      "input": "base/internal/gateway/stream_uncounted_test.go"
+    },
+    {
+      "path": "internal/provider/provider.go",
+      "sha256": "20e48ed8f8b8df2903f01b4cff9772aea6ac01c0a0ed29bfa2954a0c8bd53294",
+      "input": "overlay/internal/provider/provider.go"
+    },
+    {
+      "path": "cmd/dream-maker-magpie/control.go",
+      "sha256": "3231bc27f260d4a88fef3dd2640886853dd12665d86e40a9e4002444478d52c2",
+      "input": "base/cmd/dream-maker-magpie/control.go"
+    },
+    {
+      "path": "cmd/dream-maker-magpie/control_test.go",
+      "sha256": "169fe7cc4bf1e6ae5b1f63ba07317c057f4baecad2e8a47d480f086f7013c2fc",
+      "input": "base/cmd/dream-maker-magpie/control_test.go"
+    },
+    {
+      "path": "cmd/dream-maker-magpie/main.go",
+      "sha256": "96a54ac0929a17e449ffabc171d1ed338e741a30cbfe6a74026f73450b4658c6",
+      "input": "base/cmd/dream-maker-magpie/main.go"
+    },
+    {
+      "path": "internal/access/dm_keys.go",
+      "sha256": "14e095eb2bac5ffa3031c5a2ac8a65c73595c4a6cfabb57d046ca87998c2c0d2",
+      "input": "base/internal/access/dm_keys.go"
+    },
+    {
+      "path": "internal/access/dm_keys_models_test.go",
+      "sha256": "63183ae097562ae41d594acfbb4d0b1f9da13629335e4b01277065d7a643e136",
+      "input": "base/internal/access/dm_keys_models_test.go"
+    },
+    {
+      "path": "internal/access/dm_keys_test.go",
+      "sha256": "f23ab81e8c3591d97adf94d02a9ce920153a7a2bb41994885a46421f5f699b21",
+      "input": "overlay/internal/access/dm_keys_test.go"
+    },
+    {
+      "path": "internal/dmbridge/gate.go",
+      "sha256": "e14b658fe7e63f95f6fd209032944437e8aa139570d275e37445d8198efedb62",
+      "input": "base/internal/dmbridge/gate.go"
+    },
+    {
+      "path": "internal/dmbridge/gate_test.go",
+      "sha256": "85fe22ce40d099aebc5f5d386082ca6ffc01f0a7811fa34e0ad1d3a8c0258b8b",
+      "input": "overlay/internal/dmbridge/gate_test.go"
+    },
+    {
+      "path": "internal/dmbridge/physical.go",
+      "sha256": "e921af406facce34bcc341e2c66de5bc51e6dbe244c22b02223f8d53fc756bb1",
+      "input": "base/internal/dmbridge/physical.go"
+    },
+    {
+      "path": "internal/dmbridge/physical_test.go",
+      "sha256": "f5862f214e611c5666731ba8e256c9662730d4b2a2387a5ceb8761ba36f0203e",
+      "input": "overlay/internal/dmbridge/physical_test.go"
+    },
+    {
+      "path": "internal/gateway/dm_transport.go",
+      "sha256": "550a5b1efb35df64a862b52d7713e02970adf83874c12cfbbf6d4a2a58811489",
+      "input": "base/internal/gateway/dm_transport.go"
+    },
+    {
+      "path": "internal/gateway/dm_transport_test.go",
+      "sha256": "0c1873c3b79a7800c154665f4a232dae89ead770208f9b77a95fe2165d968719",
+      "input": "base/internal/gateway/dm_transport_test.go"
+    },
+    {
+      "path": "internal/provider/dm_accounts.go",
+      "sha256": "306273f32bd0d261a96a8312f52a204040eaa39c8c3a3f153cc05232f2d8ff2b",
+      "input": "base/internal/provider/dm_accounts.go"
+    },
+    {
+      "path": "internal/provider/dm_accounts_test.go",
+      "sha256": "b6c68ae24b9a528859cee903810252b7490e48979ed572726dd7f1146a5b2b22",
+      "input": "overlay/internal/provider/dm_accounts_test.go"
+    }
+  ],
+  "files": [
+    {
+      "path": "cmd/dream-maker-magpie/control_v5_test.go",
+      "baseSHA256": null,
+      "sha256": "b9b6dbb884da9cf931015f39977510c1111ddd1f15673322b12f999571ee21ee",
+      "size": 4379
+    },
+    {
+      "path": "internal/gateway/dm_explicit.go",
+      "baseSHA256": null,
+      "sha256": "f544306e809487d8fa0360647bda0eb011ebe8a23084eb4eb131bda09e3cfa88",
+      "size": 8917
+    },
+    {
+      "path": "internal/gateway/dm_explicit_test.go",
+      "baseSHA256": null,
+      "sha256": "03a42f73564f9b9d2076265261a05ffe99562dfaf81724bb64f366ccbb8a27b9",
+      "size": 13791
+    },
+    {
+      "path": "internal/gateway/dm_response_stream.go",
+      "baseSHA256": null,
+      "sha256": "72a81072e340ab6d7dcc6a060c7a6f5bf3624a7eff05600c0cd73d09024ea729",
+      "size": 6249
+    },
+    {
+      "path": "cmd/dream-maker-magpie/control.go",
+      "baseSHA256": "3231bc27f260d4a88fef3dd2640886853dd12665d86e40a9e4002444478d52c2",
+      "sha256": "f6838f7eddde5345a13ff9d38b44ccda90dd1d45f318622f4c9eaedd2e10fde7",
+      "size": 19729
+    },
+    {
+      "path": "cmd/dream-maker-magpie/control_test.go",
+      "baseSHA256": "169fe7cc4bf1e6ae5b1f63ba07317c057f4baecad2e8a47d480f086f7013c2fc",
+      "sha256": "5401863acadc8854e99d5a5a9b1573ae6660b990d534a31393078b2b9132d1fc",
+      "size": 24757
+    },
+    {
+      "path": "cmd/dream-maker-magpie/main.go",
+      "baseSHA256": "96a54ac0929a17e449ffabc171d1ed338e741a30cbfe6a74026f73450b4658c6",
+      "sha256": "1003f3a4db8535a94523a219ad2bfc21e1ea44794dc267056e981950952eb2dd",
+      "size": 6148
+    },
+    {
+      "path": "internal/access/access.go",
+      "baseSHA256": "5c7897f35ba702f5bd239f64754284bf87efcb32459e21074f6a60fd2d4ec3bb",
+      "sha256": "5c7897f35ba702f5bd239f64754284bf87efcb32459e21074f6a60fd2d4ec3bb",
+      "size": 24112
+    },
+    {
+      "path": "internal/access/dm_keys.go",
+      "baseSHA256": "14e095eb2bac5ffa3031c5a2ac8a65c73595c4a6cfabb57d046ca87998c2c0d2",
+      "sha256": "55e2696164125100a2c6ac299bbeccf1bb4136de41ff7afaa1d8c048b9638118",
+      "size": 4120
+    },
+    {
+      "path": "internal/access/dm_keys_models_test.go",
+      "baseSHA256": "63183ae097562ae41d594acfbb4d0b1f9da13629335e4b01277065d7a643e136",
+      "sha256": "fea8a4995c8d0224fc1a9f0074e30ce35021122033eb9a5cfc93e2fda094d799",
+      "size": 3410
+    },
+    {
+      "path": "internal/access/dm_keys_test.go",
+      "baseSHA256": "f23ab81e8c3591d97adf94d02a9ce920153a7a2bb41994885a46421f5f699b21",
+      "sha256": "f23ab81e8c3591d97adf94d02a9ce920153a7a2bb41994885a46421f5f699b21",
+      "size": 12402
+    },
+    {
+      "path": "internal/access/issue.go",
+      "baseSHA256": "59004665a21f1e2ff74e9240bc9048d712c87226745523427481c371d5246cca",
+      "sha256": "59004665a21f1e2ff74e9240bc9048d712c87226745523427481c371d5246cca",
+      "size": 13077
+    },
+    {
+      "path": "internal/dmbridge/gate.go",
+      "baseSHA256": "e14b658fe7e63f95f6fd209032944437e8aa139570d275e37445d8198efedb62",
+      "sha256": "a99140eb3305b4fddc23e0dd5827af122d86ef4e7e9be2f0c191b88f3d7343aa",
+      "size": 15501
+    },
+    {
+      "path": "internal/dmbridge/gate_test.go",
+      "baseSHA256": "85fe22ce40d099aebc5f5d386082ca6ffc01f0a7811fa34e0ad1d3a8c0258b8b",
+      "sha256": "85fe22ce40d099aebc5f5d386082ca6ffc01f0a7811fa34e0ad1d3a8c0258b8b",
+      "size": 16157
+    },
+    {
+      "path": "internal/dmbridge/physical.go",
+      "baseSHA256": "e921af406facce34bcc341e2c66de5bc51e6dbe244c22b02223f8d53fc756bb1",
+      "sha256": "6cd701ab5829c035765ba76407f82179ccfa0b0010179b23c1a849fef885d434",
+      "size": 1827
+    },
+    {
+      "path": "internal/dmbridge/physical_test.go",
+      "baseSHA256": "f5862f214e611c5666731ba8e256c9662730d4b2a2387a5ceb8761ba36f0203e",
+      "sha256": "f5862f214e611c5666731ba8e256c9662730d4b2a2387a5ceb8761ba36f0203e",
+      "size": 4490
+    },
+    {
+      "path": "internal/gateway/dm_transport.go",
+      "baseSHA256": "550a5b1efb35df64a862b52d7713e02970adf83874c12cfbbf6d4a2a58811489",
+      "sha256": "0f4d13a450aa43deac11d35632f48287b976f9da789b22544cda62e2b93f6aa2",
+      "size": 22880
+    },
+    {
+      "path": "internal/gateway/dm_transport_test.go",
+      "baseSHA256": "0c1873c3b79a7800c154665f4a232dae89ead770208f9b77a95fe2165d968719",
+      "sha256": "f33f7a174cd47368438d49c68b6ff5ee6e1dc4ef59d79f02809a499e209c6c94",
+      "size": 34205
+    },
+    {
+      "path": "internal/provider/dm_accounts.go",
+      "baseSHA256": "306273f32bd0d261a96a8312f52a204040eaa39c8c3a3f153cc05232f2d8ff2b",
+      "sha256": "dde4b02189f8c94d7f85c43bd8c082ab4993367ba904314677f59133715628d8",
+      "size": 11934
+    },
+    {
+      "path": "internal/provider/dm_accounts_test.go",
+      "baseSHA256": "b6c68ae24b9a528859cee903810252b7490e48979ed572726dd7f1146a5b2b22",
+      "sha256": "b6c68ae24b9a528859cee903810252b7490e48979ed572726dd7f1146a5b2b22",
+      "size": 11565
+    },
+    {
+      "path": "internal/provider/provider.go",
+      "baseSHA256": "20e48ed8f8b8df2903f01b4cff9772aea6ac01c0a0ed29bfa2954a0c8bd53294",
+      "sha256": "20e48ed8f8b8df2903f01b4cff9772aea6ac01c0a0ed29bfa2954a0c8bd53294",
+      "size": 88016
+    }
+  ]
+}

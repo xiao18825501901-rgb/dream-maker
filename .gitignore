@@ -1,0 +1,31 @@
+node_modules/
+dist/
+.runtime/
+data/
+temp/
+*.log
+
+# local config and secrets - never commit
+config/local.json
+config/native-owner.local.json
+config/custom-account-sources.json
+.env
+.env.local
+*.pfx
+*.cer
+*.p12
+
+# build output and evidence dumps
+*.out
+*.tap
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editors
+.vscode/
+.idea/
+*.swp

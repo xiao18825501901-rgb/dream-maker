@@ -1,0 +1,24 @@
+// Run the pinned previous process suite against this candidate and its TLS test image.
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFile, writeFile, mkdtemp } from 'node:fs/promises';
+import { join, resolve, dirname } from 'node:path';
+import { execFileSync } from 'node:child_process';
+const buildFile = resolve(process.argv[2]), build = JSON.parse(await readFile(buildFile));
+const previous = resolve(process.argv[3]), frozen = resolve(process.argv[4]);
+assert.equal(createHash('sha256').update(await readFile(frozen)).digest('hex'), '15ac29455f506ddd67238e9b553c4fd3c6f9354ed0c8c6a979527b8011777ef8');
+const old = await readFile(previous, 'utf8');
+assert.equal(createHash('sha256').update(old).digest('hex'), '508898a0849cadedac2ca4561335536c34b92db9d0e96eef18c20c34d038c528');
+const work = await mkdtemp(join(dirname(buildFile), 'prior-'));
+const start = old.indexOf('const kit ='), end = old.indexOf('const frames =');
+assert.ok(start > 0 && end > start);
+const mirror = resolve(process.argv[5]);
+const fixtureResults = JSON.parse(await readFile(join(dirname(mirror), 'results.json')));
+assert.equal(fixtureResults.binarySHA256, build.binarySHA256);
+assert.equal(fixtureResults.mirrorSHA256, createHash('sha256').update(await readFile(mirror)).digest('hex'));
+const goldenSource = JSON.parse(await readFile(build.overlay)).Replace[join(build.source, 'internal/gateway/dm_explicit_test.go')];
+const prefix = "const sha=v=>createHash('sha256').update(v).digest('hex');const [work,mirror,frozen,goldSourcePath,input]=process.argv.slice(2);const build=JSON.parse(await readFile(input));const goldSource=await readFile(goldSourcePath,'utf8');\n";
+const script = old.slice(0, start) + prefix + "const goRoot=build.goRoot;\n" + old.slice(old.indexOf('const testcert'), old.indexOf('const rootFile')) + old.slice(old.indexOf('const golden ='), end) + old.slice(end).replace("join(dirname(dirname(input)),'dream-maker-magpie.exe')", 'frozen');
+const entry = join(work, 'prior.mjs');
+await writeFile(entry, script);
+execFileSync(process.execPath, [entry, work, mirror, frozen, goldenSource, buildFile], { stdio: 'inherit' });
