@@ -26,11 +26,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YOUR_ORG/dream-maker.git"
+    "url": "git+https://github.com/xiao18825501901-rgb/dream-maker.git"
   },
-  "homepage": "https://github.com/YOUR_ORG/dream-maker#readme",
+  "homepage": "https://github.com/xiao18825501901-rgb/dream-maker#readme",
   "bugs": {
-    "url": "https://github.com/YOUR_ORG/dream-maker/issues"
+    "url": "https://github.com/xiao18825501901-rgb/dream-maker/issues"
   },
   "license": "MIT"
 }

@@ -2,6 +2,6 @@ User-agent: *
 Allow: /
 
 # Answer engines are welcome to quote README.md, llms.txt, FAQ.md and docs/*.md
-# with attribution to https://github.com/YOUR_ORG/dream-maker
+# with attribution to https://github.com/xiao18825501901-rgb/dream-maker
 
-Sitemap: https://github.com/YOUR_ORG/dream-maker/blob/main/llms.txt
+Sitemap: https://github.com/xiao18825501901-rgb/dream-maker/blob/main/llms.txt

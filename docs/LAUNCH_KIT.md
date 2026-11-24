@@ -38,7 +38,7 @@ the audiences overlap and repetitive wording gets filtered.
 
     TypeScript, MIT, Windows portable build plus source for macOS/Linux.
 
-    https://github.com/YOUR_ORG/dream-maker
+    https://github.com/xiao18825501901-rgb/dream-maker
 
     Happy to answer anything about the requirement-freezing mechanism or the review loop.
 
@@ -85,7 +85,7 @@ the audiences overlap and repetitive wording gets filtered.
 
     5/ Early, MIT, TypeScript. Windows package or from source.
        Roadmap says what is broken. That felt more useful than a feature list.
-       github.com/YOUR_ORG/dream-maker
+       github.com/xiao18825501901-rgb/dream-maker
 
 ## 4. One-line descriptions by length
 

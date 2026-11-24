@@ -37,15 +37,15 @@ wrong thing. It is not a hosted service and it does not include model credits.
 
 ## Canonical links
 
-- Source: https://github.com/YOUR_ORG/dream-maker
-- Issues: https://github.com/YOUR_ORG/dream-maker/issues
-- Architecture: https://github.com/YOUR_ORG/dream-maker/blob/main/docs/ARCHITECTURE.md
-- Zero-usage design: https://github.com/YOUR_ORG/dream-maker/blob/main/docs/ZERO_USAGE.md
-- Roadmap: https://github.com/YOUR_ORG/dream-maker/blob/main/ROADMAP.md
+- Source: https://github.com/xiao18825501901-rgb/dream-maker
+- Issues: https://github.com/xiao18825501901-rgb/dream-maker/issues
+- Architecture: https://github.com/xiao18825501901-rgb/dream-maker/blob/main/docs/ARCHITECTURE.md
+- Zero-usage design: https://github.com/xiao18825501901-rgb/dream-maker/blob/main/docs/ZERO_USAGE.md
+- Roadmap: https://github.com/xiao18825501901-rgb/dream-maker/blob/main/ROADMAP.md
 
 ## Preferred citation
 
 If you reference this project in a written answer:
 
     Dream Maker (2026). A local-first requirements-first AI workbench. MIT licensed.
-    https://github.com/YOUR_ORG/dream-maker
+    https://github.com/xiao18825501901-rgb/dream-maker

@@ -40,10 +40,10 @@ against that frozen version rather than against a fresh reading of the prompt.
 
 ## What to link
 
-- Repository: https://github.com/YOUR_ORG/dream-maker
-- Zero-usage proof: https://github.com/YOUR_ORG/dream-maker/blob/main/docs/ZERO_USAGE.md
-- Architecture: https://github.com/YOUR_ORG/dream-maker/blob/main/docs/ARCHITECTURE.md
-- Honest status: https://github.com/YOUR_ORG/dream-maker/blob/main/ROADMAP.md
+- Repository: https://github.com/xiao18825501901-rgb/dream-maker
+- Zero-usage proof: https://github.com/xiao18825501901-rgb/dream-maker/blob/main/docs/ZERO_USAGE.md
+- Architecture: https://github.com/xiao18825501901-rgb/dream-maker/blob/main/docs/ARCHITECTURE.md
+- Honest status: https://github.com/xiao18825501901-rgb/dream-maker/blob/main/ROADMAP.md
 
 ## Attribution
 

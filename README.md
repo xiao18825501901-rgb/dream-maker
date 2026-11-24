@@ -7,7 +7,7 @@
 A local-first workbench that turns a vague idea into a frozen, testable specification,
 then hands it to four role agents that plan, build, and review the result.
 
-[![CI](https://github.com/YOUR_ORG/dream-maker/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_ORG/dream-maker/actions/workflows/ci.yml)
+[![CI](https://github.com/xiao18825501901-rgb/dream-maker/actions/workflows/ci.yml/badge.svg)](https://github.com/xiao18825501901-rgb/dream-maker/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A522.16-339933)](https://nodejs.org)
 [![Zero usage by default](https://img.shields.io/badge/default-zero--usage-brightgreen)](docs/ZERO_USAGE.md)
@@ -126,7 +126,7 @@ Data lives in `data/<product>/` next to the exe. Nothing is written to the regis
 ### From source
 
 ```bash
-git clone https://github.com/YOUR_ORG/dream-maker.git
+git clone https://github.com/xiao18825501901-rgb/dream-maker.git
 cd dream-maker
 npm ci
 npm run build
