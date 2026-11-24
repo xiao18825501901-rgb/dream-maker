@@ -35,7 +35,10 @@ const OPTIONAL_CONFIGS=[
   'config/codex-agent-windows-readonly.toml',
   'config/codex-supervisor-windows.toml'
 ];
-const REQUIRED_TREES=['dist','prompts','migrations','adapters','scripts/isolation'];
+// skills/ is required for the same reason prompts/ is: the Seeker cannot run an interview
+// without skills/registry.json, and shipping a package that boots but cannot interview is
+// worse than not shipping it.
+const REQUIRED_TREES=['dist','prompts','migrations','adapters','skills','scripts/isolation'];
 const PREWORK_PUBLIC_ASSETS=[
   'contracts/DM_PREWORK_HANDOFF_V1.schema.json',
   'examples/prework/synthetic-handoff.json',

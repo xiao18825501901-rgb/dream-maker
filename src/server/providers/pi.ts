@@ -203,8 +203,16 @@ export class PiRunner implements Runner {
             if (code !== 0) throw new DomainError('PI_TURN_FAILED', 502, `Pi Agent 退出码 ${String(code)}。`);
             const messages = lines.filter(entry => entry.type === 'message_end').map(entry => entry.message).filter((message): message is Record<string, unknown> => !!message && typeof message === 'object' && !Array.isArray(message) && (message as Record<string, unknown>).role === 'assistant');
             const lastAssistant: Record<string, unknown> | undefined = messages.length ? messages[messages.length - 1] : undefined;
-            const blocks = lastAssistant?.content;
-            const text = Array.isArray(blocks) ? blocks.filter((block): block is Record<string, unknown> => !!block && typeof block === 'object' && !Array.isArray(block) && (block as Record<string, unknown>).type === 'text').map(block => String(block.text ?? '')).join('') : '';
+            // A tool-using turn ends with an assistant message that holds only tool_use blocks. Reading text
+            // from JUST the last message therefore reported PI_OUTPUT_SCHEMA on a turn that had produced a
+            // complete answer earlier and then called a tool. The final answer is the last message that
+            // actually carries text, not the chronologically last message.
+            const textOf = (message: Record<string, unknown> | undefined): string => {
+                const blocks = message?.content;
+                return Array.isArray(blocks) ? blocks.filter((block): block is Record<string, unknown> => !!block && typeof block === 'object' && !Array.isArray(block) && (block as Record<string, unknown>).type === 'text').map(block => String(block.text ?? '')).join('') : '';
+            };
+            const answering = [...messages].reverse().find(message => textOf(message).trim() !== '');
+            const text = textOf(answering);
             const eventTypes: Record<string, number> = {};
             for (const entry of lines) if (typeof entry.type === 'string') eventTypes[entry.type] = (eventTypes[entry.type] ?? 0) + 1;
             const providerErrorEntry = lines.find(entry => {
@@ -242,7 +250,12 @@ export class PiRunner implements Runner {
                 diagnostics();
                 throw new DomainError('PI_PROVIDER_ERROR', 502, 'Pi Agent 的上游模型流在本回合中报错。');
             }
-            if (stopReason !== 'stop' || !text.trim()) {
+            // `stopReason` is a property of the LAST message, so a turn that answered and then called a tool
+            // legitimately reports a tool-ish reason. The contract this guard protects is "a complete final
+            // answer exists", not "the last message happened to end with stop".
+            const answerStop = safeToken(answering?.stopReason);
+            const answerSettled = answerStop === 'stop' || answerStop === 'endTurn' || answerStop === 'toolUse';
+            if (!answerSettled || !text.trim()) {
                 diagnostics();
                 throw new DomainError('PI_OUTPUT_SCHEMA', 502, 'Pi Agent 没有产生完整的最终文本结果。');
             }
