@@ -1,0 +1,39 @@
+name: Feature request
+description: A capability that would make the workbench more useful to you
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: check ROADMAP.md. If the item is already listed as "not done yet", an issue still helps — it tells us what to prioritise.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve
+      description: Describe the situation, not the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you would like to happen
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you tried instead
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Seeker interview / requirements
+        - Planner / plan contract
+        - Executor / harness lane
+        - Reviewer / acceptance
+        - Workbench UI
+        - Packaging / install / signing
+        - Docs
+        - Other
+    validations:
+      required: true

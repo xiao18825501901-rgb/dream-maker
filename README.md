@@ -2,69 +2,67 @@
 
 # Dream Maker
 
-**从一个想法，走向可以使用的作品。**
+### It interviews you before it writes code.
 
-A local-first workbench that turns a vague idea into a frozen, testable specification,
-then hands it to four role agents that plan, build, and review the result.
+Most AI builders start from one sentence and hope. Dream Maker starts from an interview,
+freezes what you actually agreed to, and only then lets agents build — because the expensive
+mistake is never bad code, it is confident code for the wrong problem.
+
+<a href="https://github.com/xiao18825501901-rgb/dream-maker/releases/download/v0.1.0/DreamMakerSuite-Portable-0.1.0.zip"><img alt="Download" src="https://img.shields.io/badge/download-v0.1.0%20portable-2ea44f?style=for-the-badge"></a>
+<a href="#quick-start"><img alt="Quick start" src="https://img.shields.io/badge/quick%20start-3%20commands-1f6feb?style=for-the-badge"></a>
 
 [![CI](https://github.com/xiao18825501901-rgb/dream-maker/actions/workflows/ci.yml/badge.svg)](https://github.com/xiao18825501901-rgb/dream-maker/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Node](https://img.shields.io/badge/node-%E2%89%A522.16-339933)](https://nodejs.org)
-[![Zero usage by default](https://img.shields.io/badge/default-zero--usage-brightgreen)](docs/ZERO_USAGE.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%E2%89%A522.16-339933.svg)](https://nodejs.org)
+[![Default spend](https://img.shields.io/badge/default%20spend-%240-brightgreen.svg)](docs/ZERO_USAGE.md)
+[![Status](https://img.shields.io/badge/status-early%20build-yellow.svg)](ROADMAP.md)
 
 </div>
 
 ---
 
-## Why this exists
+## The one difference that matters
 
-Every "AI builds your app" tool has the same failure: it starts building before anyone agrees on
-what "done" means. You get a demo, then discover the demo solved the wrong problem.
-
-Dream Maker puts the hard part first. A **Seeker** interviews you until your vague idea becomes
-explicit, testable requirements with acceptance criteria. Only then does a **Planner** design it,
-an **Executor** build it, and a **Reviewer** check it against the requirements you actually confirmed.
-
-If the Reviewer finds a gap, the result goes **back to the Seeker**, which asks you about the
-specific blocker instead of guessing.
-
-## What makes it different
-
-| | Other tools | Dream Maker |
+| | Coding agent | Dream Maker |
 |---|---|---|
-| Requirements | implied by a prompt | **interviewed, frozen, versioned, immutable** |
-| Model spend | unlimited by default | **zero by default**, each paid call needs a verified receipt |
-| Verification | "looks done" | must match the frozen spec hash + Prework handoff + Reviewer PASS |
-| Harness lock-in | one provider | **six lanes**, freely routed through a local Magpie gateway |
-| Your data | their cloud | **your disk**, SQLite in the package folder |
+| Starts from | your sentence | an interview |
+| Requirements | implied | **frozen, versioned, hashed** |
+| Wrong problem | discovered when you use it | caught before code is written |
+| Model spend | open-ended | **$0 by default, enforced twice** |
+| Your data | their cloud | **one SQLite file on your disk** |
 
-## The four roles
+Everything else — six harness lanes, four roles, portable packaging — exists to serve that ordering.
+
+## How a run actually goes
 
 ```
-  you  -->  Seeker      interviews you, names the project, freezes the spec
-              |
-              v
-           Planner     designs tasks, each bound to a requirement id
-              |
-              v
-           Executor    builds inside a leased workspace
-              |
-              v
-           Reviewer    checks the tree hash against the frozen spec
-              |
-         +----+----+
-      PASS       findings
-         |           |
-      deliver        +--> back to Seeker: "here is the blocker, confirm the requirement"
+you type an idea
+      |
+      v
+  Seeker  asks one decision at a time (4 options + your own words)
+      |   each answer becomes a star you can reopen and edit
+      |   the current question is a hollow star that opens an explanation window
+      v
+  Prompt Optimizer  shows you the requirements it heard, in your own terms
+      |   you edit, then confirm
+      v
+  spec frozen and hashed  --------------- nothing may build before this point
+      |
+      v
+  Planner   tasks, each bound to a requirement id
+  Executor  builds inside a leased workspace
+  Reviewer  checks the produced tree against the frozen spec
+      |
+      +--> PASS   : delivered, with a hash you can verify
+      +--> gaps   : back to the Seeker, which asks about that exact blocker
 ```
 
-Role names are stable; the wire ids (`planner1`, `planner2`) are kept so historical evidence stays valid.
+## Six lanes, one router
 
-## Six harness lanes, one router
+Any engineering role can run on a different harness and a different model. Routing goes through
+Magpie, a gateway you own and run locally.
 
-The three engineering roles can each run on a different harness and a different model:
-
-| Harness | Wire | Notes |
+| Harness | Wire | |
 |---|---|---|
 | `dsh` | anthropic-messages | DeepSeek Harness lane |
 | `claude` | anthropic-messages | Claude Code lane |
@@ -73,15 +71,12 @@ The three engineering roles can each run on a different harness and a different 
 | `opencode` | openai-responses | OpenCode lane |
 | `cline` | openai-responses | Cline lane |
 
-Cross-harness and cross-model routing goes through **Magpie**, a local gateway you own.
-Prework (the handoff contract) is preserved on both lanes.
+Prework — the handoff contract between roles — is preserved on every lane.
 
-## Two modes, one switch
+## Classic by default, Custom when you deviate
 
-- **Classic** - the default. Native product roles, Prework, Laya on.
-- **Custom** - the moment you change any role harness or model, the project leaves Classic.
-
-The badge tells you which one you are in, and *why*:
+A new project is **Classic**: product roles, Prework, Laya on.
+Change any role harness or model and it becomes **Custom**, and the badge tells you why:
 
 ```json
 {"engine":"custom","origin":"USER_OVERRIDE","decision":{"reasons":[
@@ -91,126 +86,119 @@ The badge tells you which one you are in, and *why*:
 
 "Restore defaults" writes the three product defaults back and returns to Classic with zero deviations.
 
-## Zero usage by default
-
-**A copy of this software must not be able to spend your money by accident.**
-
-Paid dispatch is refused before any network call or budget reservation:
-
-```
-POST /api/projects/<id>/next   ->  409
-{"error":"ZERO_USAGE_DEPLOYMENT",
- "message":"This package runs in zero-usage mode (DM_ZERO_USAGE=1): every paid model call is
-            refused, no request is sent, no budget is reserved."}
-```
-
-Two independent layers enforce it: the price and authority files are **not in the package**, and a
-runtime guard sits **before** the budget guard. Loopback local models are unaffected.
-
-Opting in is explicit: `DM_ZERO_USAGE=0` plus a completed account and probe flow.
-See [docs/ZERO_USAGE.md](docs/ZERO_USAGE.md).
-
 ## Quick start
 
-### Portable (Windows, no install)
+### Windows, no install
 
 ```powershell
-# unpack the release zip, then:
 .\dream-maker.exe            # Dream Maker   http://127.0.0.1:4317
 .\dream-maker.exe df         # DreamFlow     http://127.0.0.1:4318
 .\Verify-Portable.ps1        # every file checked against its hash
 ```
 
-Data lives in `data/<product>/` next to the exe. Nothing is written to the registry.
+Data lives in `data/<product>/` beside the exe. No registry writes, no user-profile writes.
 
-
-### Download
-
-[**v0.1.0 portable build**](https://github.com/xiao18825501901-rgb/dream-maker/releases/download/v0.1.0/DreamMakerSuite-Portable-0.1.0.zip) - 35.7 MB, no installer.
-
-SHA-256 of the zip:
-
-
-ef3ac9dad2392d38cfd87f727fc77a52169018677c9363fa2ba72ca32f7132ad
-
-
-After unpacking, run Verify-Portable.ps1 first. It checks every file in the folder against
-RELEASE_MANIFEST.json and prints PASS_CORE_PORTABLE_ONLY when the bytes are intact.
-
-Windows will warn that the publisher is unknown. Code signing is pending CA review; the build is
-not signed yet and pretending otherwise would be worse than the warning.
 ### From source
 
 ```bash
 git clone https://github.com/xiao18825501901-rgb/dream-maker.git
-cd dream-maker
-npm ci
-npm run build
+cd dream-maker && npm ci && npm run build
 npm start                      # Dream Maker
 npm run start:dreamflow        # DreamFlow
 ```
 
-Requires **Node >= 22.16**. The boot URL contains a single-use token, so open it once.
+Node 22.16+. The boot URL contains a single-use token — open it once.
 
-### Optional local model
-
-Interviewing works fully offline if you have Ollama:
+### Offline interview (optional)
 
 ```bash
-ollama pull qwen2.5:7b        # the recommended candidate, 4.7 GB
+ollama pull qwen2.5:7b        # recommended candidate, 4.7 GB
 ollama pull bge-m3            # embeddings
 ```
 
-Then pick `local / qwen2.5:7b` as the Seeker. Hardware gates are enforced, not advisory:
+Then choose `local / qwen2.5:7b` as the Seeker. Hardware gates are enforced, not advisory:
 
 | Model | Min total RAM | Min *available* RAM | Cores |
 |---|---|---|---|
 | `qwen2.5:7b` | 16 GiB | 8 GiB | 4 |
 | `qwen2.5:3b` | 8 GiB | 4 GiB | 2 |
 
-## Repository layout
+## Zero spend is not a setting
+
+A build handed to someone who has not agreed to spend money must not be able to spend it.
+Two independent layers:
+
+1. the price and authority files are **absent** from a distribution build;
+2. a runtime guard throws **before** the budget reservation is attempted.
+
+```http
+POST /api/projects/<id>/next   ->  409
+{"error":"ZERO_USAGE_DEPLOYMENT",
+ "message":"This package runs in zero-usage mode (DM_ZERO_USAGE=1): every paid model call is
+            refused, no request is sent, no budget is reserved."}
+```
+
+Verify it yourself: after a refusal, `UsageLedger` in the SQLite file must still be empty.
+That is the real proof. [Design notes](docs/ZERO_USAGE.md).
+
+## Verify the download
 
 ```
-src/server/       controller: store, engine, interviews, providers, release
-src/web/          chat workbench: shell, projection, stage strip
-src/shared/       contracts shared by both sides
-prompts/          the frozen role prompts (hashed and audited)
-migrations/       SQLite schema, applied on boot
-adapters/         harness adapters
-skills/           skill registry with provenance
-contracts/        JSON schemas for handoff and prework
-tests/            node:test suites
-scripts/          build, test, audit, isolation helpers
+SHA-256  ef3ac9dad2392d38cfd87f727fc77a52169018677c9363fa2ba72ca32f7132ad
+bytes    37,391,862
+files    457 (after unpacking)
 ```
 
-## Testing
+```powershell
+Get-FileHash .\DreamMakerSuite-Portable-0.1.0.zip -Algorithm SHA256
+.\Verify-Portable.ps1     # must print PASS_CORE_PORTABLE_ONLY
+```
+
+The archive is unsigned; Windows will warn about an unknown publisher. That warning is
+accurate, and `signing/README_CN.md` explains why shipping unsigned beats a self-signed
+signature that only changes the warning into an error.
+
+## What is honestly not done
+
+This is an early build. The list is in [ROADMAP.md](ROADMAP.md), and it includes:
+
+- **No code-signing certificate yet.** Windows will say "unknown publisher". A self-signed
+  signature was tested and made the status *worse* (`NotSigned` -> `UnknownError`), so the
+  build ships unsigned on purpose. The signing path is ready in [`signing/`](signing/README_CN.md).
+- **Paid model dispatch is refused by design** in a distribution build.
+- A 7B local model completes the interview but its plan draft does not yet satisfy the contract.
+- No MSI installer, no SBOM, no uninstaller.
+
+## Repository map
+
+```
+src/server/     controller: store, engine, interviews, providers, release
+src/web/        workbench: shell, projection, stage strip
+src/shared/     contracts used by both sides
+prompts/        frozen role prompts, hashed and audited
+migrations/     SQLite schema, applied on boot
+adapters/       harness adapters
+skills/         skill registry with provenance
+contracts/      JSON schemas for handoff and prework
+signing/        pre-signing baseline and the eSigner path
+tests/          node:test suites
+```
+
+## Verify anything on this page
+
+Every claim above is checkable without trusting me:
 
 ```bash
-npm test                                                  # full suite
-node scripts/test.mjs tests/revamp/chat-stages.test.mjs    # one file
-npm run doctor                                            # environment diagnosis
-node scripts/native-audit.mjs                             # sandbox and secret isolation audit
+npm run build && npm test                    # the suite
+node scripts/native-audit.mjs                # sandbox and secret isolation
+.\Verify-Portable.ps1                       # the shipped bytes
+node scripts/test.mjs tests/revamp/zero-usage.test.mjs   # the zero-spend guarantee
 ```
-
-## Security posture
-
-- **Loopback only.** The server binds `127.0.0.1`; there is no remote mode.
-- **Single-use boot token.** The URL printed at startup can be consumed exactly once.
-- **No secrets in the browser.** Keys are read from the server environment by name, never sent to the page.
-- **Secrets are refused in prompts.** `SECRET_IN_PROMPT` and `MANAGED_DATA_SECRET_DENIED` block pasted credentials.
-- **Managed data is metadata-only.** The store never records your project content as model context.
-- **Audited isolation.** `scripts/native-audit.mjs` proves hostile sandbox commands are refused.
-
-## Status
-
-Early but honest. The workbench, the interview, the frozen spec, the review loop, and the
-zero-usage guarantee all work and are tested. What is **not** done yet is listed in
-[ROADMAP.md](ROADMAP.md) instead of being implied away.
 
 ## Contributing
 
-Issues and PRs welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first. The one rule is
-that a behaviour change comes with a test that fails without it.
+Issues and PRs welcome. [CONTRIBUTING.md](CONTRIBUTING.md) has one rule: a behaviour change
+comes with a test that goes red without it. Security reports: [SECURITY.md](SECURITY.md).
 
 ## License
 

@@ -1,0 +1,64 @@
+name: Bug report
+description: Something behaves worse than the README says it should
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Two things make this fast to fix: **the exact error code** and **the smallest reproduction**.
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened
+      description: One or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the workbench
+        2. Switch the Seeker to ...
+        3. See error ...
+  - type: input
+    id: code
+    attributes:
+      label: Error code
+      description: Dream Maker names every failure. Paste it exactly, e.g. ZERO_USAGE_DEPLOYMENT.
+      placeholder: SOME_ERROR_CODE
+  - type: dropdown
+    id: how
+    attributes:
+      label: How are you running it
+      options:
+        - Portable zip (Windows)
+        - From source
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS and version
+      placeholder: Windows 11 23H2
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Seeker model
+      description: Local Ollama model name, or the cloud provider, or "not set".
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: "Portable: data/dream-maker/startup.log and app-exit.log. Remove anything personal first."
+      render: text

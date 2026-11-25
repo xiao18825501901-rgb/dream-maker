@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report (private)
+    url: https://github.com/xiao18825501901-rgb/dream-maker/security/advisories/new
+    about: Please do not open a public issue for a security problem.
+  - name: Why does it refuse to spend money
+    url: https://github.com/xiao18825501901-rgb/dream-maker/blob/main/docs/ZERO_USAGE.md
+    about: The zero-usage default is a design decision, explained here.
+  - name: What is not finished
+    url: https://github.com/xiao18825501901-rgb/dream-maker/blob/main/ROADMAP.md
+    about: The honest list, before you file a feature request.

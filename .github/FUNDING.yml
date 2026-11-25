@@ -1,0 +1,12 @@
+# These are the ways to support the project financially.
+#
+# The software is MIT and free; nothing here unlocks features.
+# Sponsorship pays for the things that cost money and cannot be done for free:
+#   - a CA code-signing certificate, so Windows stops warning "unknown publisher"
+#   - hardware to test the local-model interview on lower-spec machines
+#
+# Uncomment and fill in when a real account exists. An empty funding block is worse
+# than none, because it signals a dead project.
+#
+# github: [xiao18825501901-rgb]
+# custom: ["https://example.com/sponsor"]
