@@ -290,7 +290,14 @@ const codexExecutorBuilds: ReadonlySet<string> = new Set<string>([
  // (each reserved and charged), its own seven function tools in the forwarded body, the call and its
  // output visible in the second request, exit 0, terminal text back. The same image was then shown
  // to admit the lane and refuse only TLS. Reproduce with scripts/accept-codex-executor.mjs.
- '17ac3face8ee751504721bdf5fd1dd022bce652548e2c807160927c512d72f40']);
+ '17ac3face8ee751504721bdf5fd1dd022bce652548e2c807160927c512d72f40',
+  // Candidate, 2026-11-26, same standard as the other four legs: codex exec 0.171.0 reached the
+  // CONNECT proxy 16 times, the Go control plane admitted the lane row (no 400, no admission
+  // denial, one reservation), and the fixture root was refused at TLS with zero forwarded bytes.
+  // Reproduce with: node scripts/accept-codex-executor.mjs --candidate
+  // What this row does NOT prove: the full end-to-end turn (exit 0 plus terminal text) needs the
+  // fixture CA installed in the machine trust store, which this host has not done.
+  '5a2b952cca3ed12345b985eb2832a73a1a9ecd945bc01d0e32121d232a4f8195']);
 export function supportsCodexExecutorBuild(binaryHash:string):boolean {
  return codexExecutorBuilds.has(binaryHash);
 }
