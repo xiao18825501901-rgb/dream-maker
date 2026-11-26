@@ -150,7 +150,12 @@ export function allowedJsonTarget(url: string, method = 'GET'): URL {
         requestedMethod === 'POST' && u.pathname === '/v1/decide'
     );
     const planner1Local = u.protocol === 'http:' && u.hostname === '127.0.0.1' &&
-        u.port === '11434' && (LOCAL_PLANNER1_MODEL_PATHS as readonly string[]).includes(u.pathname);
+        u.port === '11434' && (
+            (LOCAL_PLANNER1_MODEL_PATHS as readonly string[]).includes(u.pathname) ||
+            // Read-only resident list. The hardware gate has to tell "cannot load this model"
+            // apart from "it is already running", and that fact lives only on this endpoint.
+            // GET only: nothing here may mutate the local service.
+            (requestedMethod === 'GET' && u.pathname === '/api/ps'));
     const local = layaLocal || planner1Local;
     if ((!external && !local) || u.username || u.password || u.search || u.hash || u.href !== url)
         throw new DomainError('NETWORK_TARGET_DENIED', 403);
