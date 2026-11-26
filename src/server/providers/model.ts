@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {assertPaidDispatchAllowed} from '../zero-usage.js';
-import { DomainError, providerApiUrl, localProviderApiUrl, jsonFetch, object, hash, text, hasSecret, redact, registerCredentialEnv } from '../security.js';
+import { DomainError, providerApiUrl, localProviderApiUrl, magpieProviderApiUrl, jsonFetch, object, hash, text, hasSecret, redact, registerCredentialEnv } from '../security.js';
 import { purposeOfTask, skillForRequest } from '../skills.js';
 import type { Config, Usage } from '../../shared/types.js';
 import type { SiwcPlanner1Provider } from '../siwc/planner1-provider.js';
@@ -95,7 +95,7 @@ export class ModelProvider {
 
         const instructions = probe?'Return exactly this JSON object: '+JSON.stringify({probe})+'. No tools or other output.':
             readFileSync(resolve(this.root, 'prompts/planner1.md'), 'utf8') + (skill ? '\n\n' + skill.content : '') + taskNote;
-        if(local)localProviderApiUrl(c.baseUrl,c.protocol);else providerApiUrl(c.baseUrl, c.protocol);
+        if(local)localProviderApiUrl(c.baseUrl,c.protocol);else if(c.provider==='magpie')magpieProviderApiUrl(c.baseUrl,c.protocol);else providerApiUrl(c.baseUrl, c.protocol);
         const base = c.baseUrl.replace(/\/$/, '');
         const maxOutputTokens=probe?Math.min(c.maxOutputTokens,128):c.maxOutputTokens;
         // A local model at temperature 0 reproduces its previous answer verbatim, which the duplicate-question
@@ -110,7 +110,10 @@ export class ModelProvider {
         const budgetMs=local?180000:180000;
         const combined = signal ? AbortSignal.any([signal, AbortSignal.timeout(budgetMs)]) : AbortSignal.timeout(budgetMs);
         // Zero-usage deployments must fail before any reservation or network call.
-        assertPaidDispatchAllowed(local);
+        // Magpie is a loopback gateway: no meter, no invoice, nothing to spend. The zero-usage
+        // switch exists to stop a handed-over package from paying for a cloud call, so it must not
+        // block the local lane the same package ships with.
+        assertPaidDispatchAllowed(local || planner1Binding(this.config()).provider === 'magpie');
         const ticket = local?undefined:this.paidGuard?.({ baseUrl: base, model: c.model, protocol: c.protocol, maxOutputTokens });
         if (!local&&!ticket) throw new DomainError('NATIVE_BUDGET_REQUIRED', 409, 'Paid API dispatch requires an authorized monetary reservation guard.');
         let result: Record<string, unknown>;
@@ -211,7 +214,7 @@ export class ModelProvider {
         const local=planner1Binding(this.config()).provider==='local',key=local?'':process.env[c.keyEnv];
         if (!local&&!key)
             throw new DomainError('PLANNER1_KEY_MISSING', 409);
-        if(local)localProviderApiUrl(c.baseUrl,c.protocol);else providerApiUrl(c.baseUrl, c.protocol);
+        if(local)localProviderApiUrl(c.baseUrl,c.protocol);else if(c.provider==='magpie')magpieProviderApiUrl(c.baseUrl,c.protocol);else providerApiUrl(c.baseUrl, c.protocol);
         const data = await this.request(c.baseUrl.replace(/\/$/, '') + '/models', { headers: local?{}:{ authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(10000) });
         return { models: (Array.isArray(data.data) ? data.data : []).map(x => { const o = object(x); return { id: text(o.id, 200), name: typeof o.name === 'string' ? o.name : o.id }; }), checkedAt: new Date().toISOString() };
     }
