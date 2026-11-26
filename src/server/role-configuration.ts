@@ -392,7 +392,13 @@ export class RoleConfigurations {
     catalog(projectId: string): RoleCatalogEntryView[] {
         const revision = this.current(projectId)?.revision ?? 0;
         const registry = this.registry();
-        return WORKBENCH_ROLES.map<RoleCatalogEntryView>(role => {
+        // DreamFlow has no Seeker: `POST /api/projects` already refuses with USER_PLANNER_REQUIRED
+        // for it, yet this catalog still listed a seeker entry, so the API described a role the
+        // product does not have. The entry is not merely hidden client-side - it is not offered.
+        const roles: readonly WorkbenchRole[] = this.engines.entry(projectId) === 'DF'
+            ? WORKBENCH_ROLES.filter(role => role !== 'seeker')
+            : WORKBENCH_ROLES;
+        return roles.map<RoleCatalogEntryView>(role => {
             const wire = WORKBENCH_TO_WIRE[role];
             // A harness the product ships keeps its own wire. Any other harness is real but needs a
             // build whose lane set accepts this exact image; naming a lane is not opening it, so the
