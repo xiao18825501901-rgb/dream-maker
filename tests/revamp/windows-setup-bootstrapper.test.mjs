@@ -73,7 +73,7 @@ async function portableFixture(parent){
     mkdirSync(dirname(join(source,file)),{recursive:true});
     copyFileSync(join(root,file),join(source,file));
   }
-  for(const file of ['prompts/planner1.md','migrations/001_init.sql','adapters/.keep','scripts/isolation/.keep']) {
+  for(const file of ['prompts/planner1.md','migrations/001_init.sql','adapters/.keep','skills/registry.json','scripts/isolation/.keep']) {
     mkdirSync(dirname(join(source,file)),{recursive:true});
     writeFileSync(join(source,file),file);
   }

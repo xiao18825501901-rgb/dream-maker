@@ -40,11 +40,28 @@ namespace DreamMaker {
         public int Count { get { return handles.Count; } }
         private StorageDirectoryPin() { }
 
+        // The approved roots used to be the literal "F:\DreamMakerSuite" with the drive letter
+        // spelled out twice, so a correctly configured installation on any other volume failed
+        // with STORAGE_PIN_SCOPE_DENIED before a single byte was touched. The boundary is still
+        // "these exact roots and nothing else"; it is just no longer welded to one letter.
+        private static readonly string[] ApprovedScopes = LoadScopes();
+        private static string[] LoadScopes() {
+            string configured = Environment.GetEnvironmentVariable("DM_STORAGE_CUSTODY_SCOPES");
+            if (String.IsNullOrEmpty(configured)) return new string[] { "F:" + Separator + "DreamMakerSuite" };
+            List<string> scopes = new List<string>();
+            foreach (string raw in configured.Split(';')) {
+                string item = raw.Trim();
+                if (item.Length < 3 || item[1] != ':' || item[2] != Separator) continue;
+                scopes.Add(Path.GetFullPath(item.Replace('/', Separator)).TrimEnd(Separator));
+            }
+            if (scopes.Count == 0) throw new InvalidOperationException("STORAGE_PIN_SCOPE_DENIED");
+            return scopes.ToArray();
+        }
         private static string Validate(string input) {
             if (String.IsNullOrEmpty(input) || input.Length > 2048 || input.IndexOf((char)0) >= 0)
                 throw new InvalidOperationException("STORAGE_PIN_PATH_DENIED");
             string value = input.Replace('/', Separator);
-            if (value.Length < 4 || Char.ToUpperInvariant(value[0]) != 'F' || value[1] != ':' || value[2] != Separator)
+            if (value.Length < 4 || value[1] != ':' || value[2] != Separator)
                 throw new InvalidOperationException("STORAGE_PIN_SCOPE_DENIED");
             string[] segments = value.Substring(3).Split(Separator);
             if (segments.Length > 64) throw new InvalidOperationException("STORAGE_PIN_PATH_DENIED");
@@ -55,10 +72,13 @@ namespace DreamMaker {
                     if (Char.IsControl(c) || Array.IndexOf(Path.GetInvalidFileNameChars(), c) >= 0)
                         throw new InvalidOperationException("STORAGE_PIN_PATH_DENIED");
             }
-            string full = Path.GetFullPath(value), scope = "F:" + Separator + "DreamMakerSuite";
-            if (!String.Equals(full, scope, StringComparison.OrdinalIgnoreCase) &&
-                !full.StartsWith(scope + Separator, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("STORAGE_PIN_SCOPE_DENIED");
+            string full = Path.GetFullPath(value);
+            bool allowed = false;
+            foreach (string scope in ApprovedScopes) {
+                if (String.Equals(full, scope, StringComparison.OrdinalIgnoreCase) ||
+                    full.StartsWith(scope + Separator, StringComparison.OrdinalIgnoreCase)) { allowed = true; break; }
+            }
+            if (!allowed) throw new InvalidOperationException("STORAGE_PIN_SCOPE_DENIED");
             return full;
         }
 

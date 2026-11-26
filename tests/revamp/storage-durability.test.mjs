@@ -1,13 +1,18 @@
 // Read-only Windows volume health. Synthetic cases are not storage acceptance.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {resolve} from 'node:path';
+import {resolve,parse} from 'node:path';
 import {probeStorageVolumeHealth,assertStorageVolumeHealthy} from '../../dist/server/storage-durability.js';
 import {root} from '../helpers.mjs';
+// The probe reports the volume that actually holds the directory under test. Naming one drive
+// made these cases pass only on the operator's original machine and fail for the wrong reason
+// everywhere else: the probe was right, the expectation was pinned.
+const runtimeRoot = resolve(root, '.runtime');
+const expectDrive = parse(runtimeRoot).root.slice(0, 2);
 
 const raw = (overrides = {}) => ({
   schema: 'dream-maker.windows-volume-health.v1',
-  drive: 'F:',
+  drive: expectDrive,
   fileSystem: 'NTFS',
   healthStatus: 'Healthy',
   operationalStatus: 'OK',
@@ -19,7 +24,7 @@ const raw = (overrides = {}) => ({
 test('a healthy Windows volume produces a healthy read-only health record', async () => {
   const result = await probeStorageVolumeHealth(resolve(root, '.runtime'), {
     runner: async drive => {
-      assert.equal(drive, 'F:');
+      assert.equal(drive, expectDrive);
       return raw();
     },
     now: () => new Date('2026-11-07T00:00:00.000Z')
@@ -27,7 +32,7 @@ test('a healthy Windows volume produces a healthy read-only health record', asyn
   assert.deepEqual(result, {
     schema: 'dream-maker.storage-volume-health.v1',
     scope: 'VOLUME_HEALTH_ONLY',
-    drive: 'F:',
+    drive: expectDrive,
     fileSystem: 'NTFS',
     healthStatus: 'Healthy',
     operationalStatus: 'OK',
@@ -78,8 +83,8 @@ test('missing, malformed, limit-breaking or mismatched probe output is UNKNOWN a
 });
 
 test('the actual Windows probe is read-only, bounded and reports the current F volume', {skip: process.platform !== 'win32'}, async () => {
-  const result = await probeStorageVolumeHealth(resolve(root, '.runtime'));
-  assert.equal(result.drive, 'F:');
+  const result = await probeStorageVolumeHealth(runtimeRoot);
+  assert.equal(result.drive, expectDrive);
   assert.equal(result.evidence, 'WINDOWS_STORAGE_READ_ONLY');
   assert.ok(['HEALTHY', 'REPAIR_REQUIRED'].includes(result.state));
   assert.ok(Number.isSafeInteger(result.totalBytes) && result.totalBytes > 0);

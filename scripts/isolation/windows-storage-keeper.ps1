@@ -63,7 +63,12 @@ try {
   }else{throw 'STORAGE_OPERATION_DENIED'}
  }
 }catch{
- Send-DmStorage @{schema='dream-maker.storage-custody.v1';nonce=$dmNonce;type='error';id=$dmSequence;code='STORAGE_CUSTODY_REFUSED'}
+ # Swallowing the reason left operators with a bare STORAGE_CUSTODY_REFUSED and no way to tell a
+ # bad nonce from a missing pin type. The parent already owns this directory and supplied the nonce,
+ # so a bounded reason line leaks nothing it does not already hold.
+ $dmReason=[string]$_.Exception.Message
+ if($dmReason.Length -gt 200){$dmReason=$dmReason.Substring(0,200)}
+ Send-DmStorage @{schema='dream-maker.storage-custody.v1';nonce=$dmNonce;type='error';id=$dmSequence;code='STORAGE_CUSTODY_REFUSED';reason=$dmReason}
  exit 74
 }finally{
  for($dmIndex=$dmPins.Count-1;$dmIndex -ge 0;$dmIndex--){$dmPins[$dmIndex].Dispose()}

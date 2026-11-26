@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdirSync,mkdtempSync,rmSync,writeFileSync,readFileSync,readdirSync} from 'node:fs';
-import {resolve} from 'node:path';
+import {resolve,parse} from 'node:path';
 import {createApp} from '../../dist/server/http.js';
 import {root} from '../helpers.mjs';
 import {fixtureProjectPlan} from '../fixtures/full-project-plan.mjs';
@@ -22,7 +22,7 @@ test('state backup requires authentication, CSRF and explicit consent; replay cr
  assert.equal((await call('/maintenance/snapshots',{confirmed:true,target:'C:/outside'})).status,400);
  const key=crypto.randomUUID(),first=await call('/maintenance/snapshots',{confirmed:true},{'idempotency-key':key});assert.equal(first.status,200);assert.equal(first.body.scope,'APPLICATION_STATE_ONLY');assert.equal(first.body.completeProjectBackup,false);
  assert.deepEqual(await call('/maintenance/snapshots',{confirmed:true},{'idempotency-key':key}),first);assert.equal(readdirSync(resolve(data,'controller/state-backups')).length,1);
-  const list=await call('/maintenance');assert.equal(list.status,200);assert.equal(list.body.snapshots.length,1);assert.equal(list.body.modelsCalled,0);assert.equal(list.body.automaticResume,false);assert.equal(list.body.storageVolume.schema,'dream-maker.storage-volume-health.v1');assert.equal(list.body.storageVolume.scope,'VOLUME_HEALTH_ONLY');assert.equal(list.body.storageVolume.drive,'F:');assert.ok(['HEALTHY','REPAIR_REQUIRED','UNKNOWN'].includes(list.body.storageVolume.state));
+  const list=await call('/maintenance');assert.equal(list.status,200);assert.equal(list.body.snapshots.length,1);assert.equal(list.body.modelsCalled,0);assert.equal(list.body.automaticResume,false);assert.equal(list.body.storageVolume.schema,'dream-maker.storage-volume-health.v1');assert.equal(list.body.storageVolume.scope,'VOLUME_HEALTH_ONLY');assert.equal(list.body.storageVolume.drive,parse(root).root.slice(0,2));assert.ok(['HEALTHY','REPAIR_REQUIRED','UNKNOWN'].includes(list.body.storageVolume.state));
  const id=first.body.id,rehearsal=await call('/maintenance/snapshots/'+id+'/rehearse',{confirmed:true});assert.equal(rehearsal.status,200);assert.equal(rehearsal.body.engineStarted,false);assert.equal(app.store.projects().length,1);assert.equal(app.engine.jobs.size,0);
 });
 test('a held writer or changed snapshot blocks maintenance without rewriting application state or business data',async t=>{

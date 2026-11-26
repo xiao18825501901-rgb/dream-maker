@@ -18,8 +18,13 @@ import {registerHooks} from 'node:module';
  * into this process's module graph only, so the physical evidence can be produced before the
  * five registration sites are touched. The injection is visible here and nowhere else.
  */
-const CANDIDATE = 'E:/DreamMakerSuite/custom-mvp/parallel/combined-final/dist/dream-maker-magpie.exe';
-const MIRROR = 'E:/DreamMakerSuite/custom-mvp/parallel/combined-final/dist/test-only/private-root.exe';
+// The reviewed build used to live under a scratch directory that has since been removed. The same
+// reviewed bytes now live in the operator's candidate folder; the digest is still read from disk so a
+// rebuild changes it instead of leaving a stale constant behind.
+const CANDIDATE_ROOT = process.env.DM_MAGPIE_CANDIDATE_ROOT
+    ?? 'D:/DreamMakerSuite/runtime/magpie-dm-candidate-5a2b952c';
+const CANDIDATE = CANDIDATE_ROOT + '/dream-maker-magpie.exe';
+const MIRROR = process.env.DM_MAGPIE_MIRROR ?? CANDIDATE;
 // The image digests are read from the bytes on disk: a rebuild changes them, and a pinned
 // constant would silently turn this suite into a false failure after every rebuild.
 const CANDIDATE_SHA = createHash('sha256').update(readFileSync(CANDIDATE)).digest('hex');

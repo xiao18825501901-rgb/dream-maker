@@ -1,8 +1,8 @@
-// Real Windows DPAPI + DM-only Linux permission tests. Random test keys, no model/account credentials.
+﻿// Real Windows DPAPI + DM-only Linux permission tests. Random test keys, no model/account credentials.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync,readFileSync,existsSync} from 'node:fs';
-import {resolve,join,dirname} from 'node:path';
+import {resolve,join,dirname,parse} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {randomBytes,createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
@@ -35,7 +35,9 @@ test('custody root inspection rejects a redirected ancestor even when the final 
 
 test('the running product root is an approved custody scope and foreign paths stay denied',()=>{
  const product=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
- assert.match(custody.probeCustodyDirectoryIdentity(product),/kimi-p1-v1$/);
+ // The identity ends with the real folder name. Pinning the checkout name made this case pass
+ // only inside that one directory; what it means is that the root it runs from is approved.
+ assert.equal(custody.probeCustodyDirectoryIdentity(product).toLowerCase().split('\\').pop(), parse(product).base.toLowerCase());
  assert.match(custody.probeCustodyDirectoryIdentity(resolve(product,'tests')),/tests$/);
  assert.throws(()=>custody.probeCustodyDirectoryIdentity(resolve(process.env.SystemRoot??'C:/Windows','Temp')),{code:'NATIVE_PROBE_CUSTODY_SCOPE_DENIED'});
 });

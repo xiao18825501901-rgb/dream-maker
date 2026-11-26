@@ -31,7 +31,7 @@ function temporaryRoot(t){
 
 function sourceFixture(root,name){
   const source=join(root,name),runtime=join(root,`${name}-runtime`);
-  for(const tree of ['dist/server','dist/server/release','dist/web','prompts','migrations','adapters','scripts/isolation','config']){
+  for(const tree of ['dist/server','dist/server/release','dist/web','prompts','migrations','adapters','skills','scripts/isolation','config']){
     mkdirSync(join(source,tree),{recursive:true});
   }
   mkdirSync(runtime,{recursive:true});

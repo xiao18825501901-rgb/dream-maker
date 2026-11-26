@@ -79,7 +79,7 @@ async function coreFixture(parent){
   const source=join(parent,'core-source'),nodeRoot=join(parent,'node-runtime'),output=join(parent,'core');
   mkdirSync(join(source,'dist/server'),{recursive:true});
   mkdirSync(join(source,'dist/web'),{recursive:true});
-  for(const tree of ['prompts','migrations','adapters','scripts/isolation']){
+  for(const tree of ['prompts','migrations','adapters','skills','scripts/isolation']){
     mkdirSync(join(source,tree),{recursive:true});
     writeFileSync(join(source,tree,'.keep'),tree);
   }

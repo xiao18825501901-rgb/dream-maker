@@ -32,15 +32,26 @@ export async function withWindowsStorageCustody<T>(root:string,directory:string,
     if(options.signal?.aborted)throw new DomainError('RUN_CANCELLED',409);
     const timeout=options.timeoutMs??120000;
     if(!Number.isSafeInteger(timeout)||timeout<1000||timeout>120000)throw new DomainError('STORAGE_CUSTODY_TIME_LIMIT',409);
-    const scope=resolve(directory),base=resolve('F:/DreamMakerSuite');
-    for(const path of [root,directory]){const full=resolve(path),child=relative(base,full);
-        if(!isAbsolute(path)||full!==base&&(!child||child.startsWith('..')||child.includes(':')||child.startsWith(sep)))throw new DomainError('STORAGE_CUSTODY_PATH_DENIED',409);}
+    // The approved base is the product root the caller actually owns, plus the historical operator
+    // directory so existing installations keep working. Both are derived here rather than read from
+    // module scope: a failure-peer test rebuilds this exact function body with a fixed identifier
+    // list, and any module-level name would be a ReferenceError there.
+    const scope=resolve(directory),base=resolve(root),historicalBase=resolve('F:/DreamMakerSuite');
+    // Either root is acceptable: the install the product actually runs from, or the historical
+    // operator directory where earlier installations and their evidence already live.
+    const inside=(rootPath:string,full:string)=>{const child=relative(rootPath,full);
+        return full===rootPath||!!child&&!child.startsWith('..')&&!child.includes(':')&&!child.startsWith(sep);};
+    for(const path of [root,directory]){const full=resolve(path);
+        if(!isAbsolute(path)||!(inside(base,full)||inside(historicalBase,full)))throw new DomainError('STORAGE_CUSTODY_PATH_DENIED',409);}
     const source=within(root,'scripts/isolation/windows-storage-keeper.ps1'),library=within(root,'scripts/isolation/windows-storage-pin.cs');
     const sourceHash=hash(readFileSync(source)),libraryHash=hash(readFileSync(library)),nonce=id('storage_custody');
     const binary=resolve(process.env.SystemRoot||'C:/Windows','System32/WindowsPowerShell/v1.0/powershell.exe');
     const owned=own(binary,['-NoLogo','-NoProfile','-NonInteractive','-Command',bootstrap],{cwd:root,windowsJobRoot:root,
         env:childEnv({DM_STORAGE_CUSTODY_SOURCE:source,DM_STORAGE_CUSTODY_SOURCE_SHA256:sourceHash,DM_STORAGE_CUSTODY_LIBRARY:library,
-            DM_STORAGE_CUSTODY_LIBRARY_SHA256:libraryHash,DM_STORAGE_CUSTODY_DIRECTORY:scope,DM_STORAGE_CUSTODY_NONCE:nonce})});
+            DM_STORAGE_CUSTODY_LIBRARY_SHA256:libraryHash,DM_STORAGE_CUSTODY_DIRECTORY:scope,DM_STORAGE_CUSTODY_NONCE:nonce,
+            // The keeper's own C# pin must accept the same roots this layer approves, or the
+            // boundary is enforced twice with two different answers.
+            DM_STORAGE_CUSTODY_SCOPES:[base,historicalBase].join(';')})});
     let active=false,closing=false,closedAck=false,readyObserved=false,error:Error|null=null,actionError:Error|null=null,sequence=0,outputBytes=0,buffer='';
     const cancellation=new AbortController();
     const actionCancellation=new AbortController();

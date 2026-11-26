@@ -35,7 +35,8 @@ test('portable builder copies only allowed core assets, excludes local secrets a
  mkdirSync(join(source,'prompts'),{recursive:true});
  mkdirSync(join(source,'migrations'),{recursive:true});
  mkdirSync(join(source,'adapters'),{recursive:true});
- mkdirSync(join(source,'scripts/isolation'),{recursive:true});
+ mkdirSync(join(source,'skills'),{recursive:true});
+  mkdirSync(join(source,'scripts/isolation'),{recursive:true});
  mkdirSync(join(source,'scripts/isolation/__pycache__'),{recursive:true});
  mkdirSync(join(source,'config'),{recursive:true});
  mkdirSync(join(source,'.runtime'),{recursive:true});

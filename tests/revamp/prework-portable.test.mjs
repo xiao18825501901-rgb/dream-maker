@@ -11,7 +11,7 @@ function fixture(t){
  const parent=resolve(root,'.runtime/test-temp');mkdirSync(parent,{recursive:true});const base=mkdtempSync(resolve(parent,'prework-package-'));
  t.after(()=>rmSync(base,{recursive:true,force:true}));const source=resolve(base,'source'),runtime=resolve(base,'runtime');
  const put=(path,body)=>{mkdirSync(dirname(path),{recursive:true});writeFileSync(path,body);};
- for(const tree of ['dist/server','dist/web','prompts','migrations','adapters','scripts/isolation'])mkdirSync(resolve(source,tree),{recursive:true});
+ for(const tree of ['dist/server','dist/web','prompts','migrations','adapters','skills','scripts/isolation'])mkdirSync(resolve(source,tree),{recursive:true});
  for(const [path,body] of Object.entries({'package.json':'{"name":"dream-maker","version":"0.1.0"}','dist/server/main.js':'// OFFLINE','dist/server/dreamflow-main.js':'// OFFLINE','dist/server/prework/runtime.js':'// OFFLINE_PREWORK_RUNTIME','migrations/009_prework_records.sql':'-- OFFLINE_SCHEMA9'}))put(resolve(source,path),body);
  for(const path of assets)put(resolve(source,path),'OFFLINE_PUBLIC_ASSET:'+path);
  put(resolve(source,'dist/server/demo.js'),'// OFFLINE_DEMO_RUNTIME');for(const path of demoAssets)put(resolve(source,path),'OFFLINE_DEMO_ASSET:'+path);

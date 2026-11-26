@@ -250,11 +250,13 @@ export class PiRunner implements Runner {
                 diagnostics();
                 throw new DomainError('PI_PROVIDER_ERROR', 502, 'Pi Agent 的上游模型流在本回合中报错。');
             }
-            // `stopReason` is a property of the LAST message, so a turn that answered and then called a tool
-            // legitimately reports a tool-ish reason. The contract this guard protects is "a complete final
-            // answer exists", not "the last message happened to end with stop".
+            // The answer is the last message that carries text, but WHICH reason ended the turn still matters:
+            // `toolUse` means Pi asked to call a tool, so nothing is final no matter how much text preceded it,
+            // and `length` means the provider cut the reply. Only a clean stop settles a turn. Reading text
+            // from an earlier message fixes "answered, then called a tool, then the tool message has no text";
+            // it must not be read as "a tool-use turn counts as an answer".
             const answerStop = safeToken(answering?.stopReason);
-            const answerSettled = answerStop === 'stop' || answerStop === 'endTurn' || answerStop === 'toolUse';
+            const answerSettled = answerStop === 'stop' || answerStop === 'endTurn';
             if (!answerSettled || !text.trim()) {
                 diagnostics();
                 throw new DomainError('PI_OUTPUT_SCHEMA', 502, 'Pi Agent 没有产生完整的最终文本结果。');
