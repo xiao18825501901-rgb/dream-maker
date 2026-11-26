@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
 # Dream Maker
 
@@ -144,9 +144,9 @@ That is the real proof. [Design notes](docs/ZERO_USAGE.md).
 ## Verify the download
 
 ```
-SHA-256  ef3ac9dad2392d38cfd87f727fc77a52169018677c9363fa2ba72ca32f7132ad
-bytes    37,391,862
-files    457 (after unpacking)
+SHA-256  622853b7e1e06d45db53939cd12d37a20d5cbb26b7a327ee86639dd66bb7d424
+bytes    37,392,786
+files    459 (after unpacking)
 ```
 
 ```powershell
