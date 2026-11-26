@@ -118,7 +118,7 @@ export class Settings {
             next.planner1.model = text(p.model, 100, true);
             // K02: the browser may name a provider, but only an active one can be selected.
             if (p.provider !== undefined)
-                next.planner1.provider = choose(p.provider, ['kimi', 'openai', 'deepseek', 'local', 'siwc']) as Config['planner1']['provider'];
+                next.planner1.provider = choose(p.provider, ['kimi', 'openai', 'deepseek', 'local', 'siwc', 'magpie']) as Config['planner1']['provider'];
             if (p.authMode !== undefined) next.planner1.authMode = choose(p.authMode, ['api_key', 'siwc_plan']);
             const protocol = choose(p.protocol, ['openai-responses', 'chat-completions']);
             if (protocol !== next.planner1.protocol)
