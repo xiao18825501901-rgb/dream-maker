@@ -17,9 +17,13 @@ import { LOCAL_PLANNER1_BASE_URL, LOCAL_PLANNER1_KEY_ENV, LOCAL_PLANNER1_PROTOCO
  * adapters. Old API/SIWC bindings are never promoted by merely loading them.
  * OAuth support and API credentials are separate capabilities.
  */
-export const PLANNER1_PROVIDERS = ['kimi', 'openai', 'deepseek', 'local', 'siwc'] as const;
+export const PLANNER1_PROVIDERS = ['kimi', 'openai', 'deepseek', 'local', 'siwc', 'magpie'] as const;
 export type Planner1Provider = typeof PLANNER1_PROVIDERS[number];
 export type Planner1Runner = 'kimi-server' | 'http-api' | 'local-http' | 'siwc-sdk';
+
+/** The local Magpie gateway: loopback, OpenAI-compatible, no credential. */
+export const MAGPIE_PLANNER1_BASE_URL = 'http://127.0.0.1:3425/v1';
+export const MAGPIE_PLANNER1_PROTOCOL = 'chat-completions';
 export type Planner1AuthMethod = 'oauth' | 'api_key' | 'none' | 'siwc_plan';
 
 /** Historical default; explicit version 2 API selections are independent of it. */
@@ -77,8 +81,8 @@ function deriveProvider(config: Config): Planner1Provider {
 export function planner1Binding(config: Config): Planner1Binding {
     const p = config.planner1;
     const provider = deriveProvider(config);
-    const runner: Planner1Runner = provider === 'kimi' ? 'kimi-server' : provider === 'local' ? 'local-http' : provider === 'siwc' ? 'siwc-sdk' : 'http-api';
-    const authMethod: Planner1AuthMethod = provider === 'kimi' ? 'oauth' : provider === 'local' ? 'none' : provider === 'siwc' ? 'siwc_plan' : 'api_key';
+    const runner: Planner1Runner = provider === 'kimi' ? 'kimi-server' : provider === 'local' || provider === 'magpie' ? 'local-http' : provider === 'siwc' ? 'siwc-sdk' : 'http-api';
+    const authMethod: Planner1AuthMethod = provider === 'kimi' ? 'oauth' : provider === 'local' || provider === 'magpie' ? 'none' : provider === 'siwc' ? 'siwc_plan' : 'api_key';
     const version=p.bindingVersion??PLANNER1_BINDING_VERSION;
     if(version===SEEKER_PLANNER1_BINDING_VERSION&&!(provider==='openai'||provider==='deepseek'))
         throw new DomainError('PLANNER1_PROVIDER_ROUTE_MISMATCH',409);
@@ -88,6 +92,8 @@ export function planner1Binding(config: Config): Planner1Binding {
             ||provider==='deepseek'&&(!['https://api.deepseek.com','https://api.deepseek.com/v1'].includes(base)||p.protocol!=='chat-completions'))
             throw new DomainError('PLANNER1_PROVIDER_ROUTE_MISMATCH',409);
     }
+    if(version===3&&provider==='magpie'&&(p.baseUrl.replace(/\/$/,'')!==MAGPIE_PLANNER1_BASE_URL||p.protocol!==MAGPIE_PLANNER1_PROTOCOL))
+        throw new DomainError('PLANNER1_PROVIDER_ROUTE_MISMATCH',409);
     if(version===3&&provider==='local'&&(p.baseUrl.replace(/\/$/,'')!==LOCAL_PLANNER1_BASE_URL||p.protocol!==LOCAL_PLANNER1_PROTOCOL||p.keyEnv!==LOCAL_PLANNER1_KEY_ENV))
         throw new DomainError('PLANNER1_PROVIDER_ROUTE_MISMATCH',409);
     return {
@@ -136,7 +142,7 @@ export function assertPlanner1DispatchAllowed(binding: Planner1Binding, purpose 
         throw new DomainError('PLANNER1_PROVIDER_RETIRED', 409, `planner1 上游 ${binding.provider} 已退役，不能用于新的推理（${purpose}）。旧项目可读历史，但不会自动回退到该账户。`);
     const api=(binding.bindingVersion===2||binding.bindingVersion===SEEKER_PLANNER1_BINDING_VERSION)
         &&(binding.provider==='openai'||binding.provider==='deepseek')&&binding.runner==='http-api'&&binding.authMethod==='api_key';
-    const local=binding.bindingVersion===3&&binding.provider==='local'&&binding.runner==='local-http'&&binding.authMethod==='none';
+    const local=binding.bindingVersion===3&&(binding.provider==='local'||binding.provider==='magpie')&&binding.runner==='local-http'&&binding.authMethod==='none';
     if (!api&&!local&&(binding.runner !== 'kimi-server' || binding.authMethod !== 'oauth'))
         throw new DomainError('PLANNER1_RUNNER_NOT_ACTIVE', 409, `planner1 运行器 ${binding.runner}/${binding.authMethod} 不是当前活动路线（${purpose}）。`);
 }

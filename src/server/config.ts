@@ -2,8 +2,8 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync,openSync,fsyncSync,c
 import { dirname, resolve } from 'node:path';
 import { ROLES, type Config } from '../shared/types.js';
 import { normalizeRoleAliasKeys } from '../shared/role-names.js';
-import { object, text, integer, choose, publicApiUrl, localProviderApiUrl, loopbackUrl, DomainError, hasSecret, registerCredentialEnv,id } from './security.js';
-import { planner1Binding, planner1BindingHash, assertPlanner1Selectable, isRetiredProvider, SEEKER_PLANNER1_BINDING_VERSION } from './planner1-binding.js';
+import { object, text, integer, choose, publicApiUrl, localProviderApiUrl, magpieProviderApiUrl, loopbackUrl, DomainError, hasSecret, registerCredentialEnv,id } from './security.js';
+import { planner1Binding, planner1BindingHash, assertPlanner1Selectable, isRetiredProvider, SEEKER_PLANNER1_BINDING_VERSION, MAGPIE_PLANNER1_BASE_URL, MAGPIE_PLANNER1_PROTOCOL } from './planner1-binding.js';
 import { flowCatalog } from './flows.js';
 import { LOCAL_PLANNER1_BASE_URL, LOCAL_PLANNER1_KEY_ENV, LOCAL_PLANNER1_PROTOCOL } from './local-planner1-contract.js';
 // Clash route: DreamMaker only reads the CURRENT user's CFW top-level routing fields (controller + secret + mixed port).
@@ -13,8 +13,9 @@ export function parseConfig(raw: unknown): Config {
     const v = object(raw), p = object(v.planner1), c = object(v.codex), d = object(v.dsh), clash = object(v.clash ?? defaults.clash), l = object(v.laya), limits = object(v.limits), roles = object(l.roles), ind = object(v.independent ?? defaults.independent);
     if (v.version !== 1)
         throw new DomainError('CONFIG_VERSION_UNSUPPORTED');
-    const declaredPlanner1Provider=p.provider===undefined?undefined:choose(p.provider,['kimi','openai','deepseek','local','siwc']);
-    if(declaredPlanner1Provider==='local')localProviderApiUrl(text(p.baseUrl,200),text(p.protocol,100));
+    const declaredPlanner1Provider=p.provider===undefined?undefined:choose(p.provider,['kimi','openai','deepseek','local','siwc','magpie']);
+    if(declaredPlanner1Provider==='magpie')magpieProviderApiUrl(text(p.baseUrl,200),text(p.protocol,100));
+    else if(declaredPlanner1Provider==='local')localProviderApiUrl(text(p.baseUrl,200),text(p.protocol,100));
     else publicApiUrl(text(p.baseUrl, 200));
     // The independent provider is a public API too: no loopback, no file URL, no credentials in it.
     publicApiUrl(text(ind.baseUrl ?? 'https://api.openai.com/v1', 200));
@@ -62,13 +63,20 @@ export class Settings {
         // credential, with the two built-in skills. 'legacy_api' keeps the earlier version 2 route so an
         // existing configuration is never silently promoted.
         const route=choose(input.route??'legacy_api',['legacy_api','seeker_api']);
-        const provider=choose(input.provider,['kimi','openai','deepseek','local']),authentication=choose(input.authentication,['oauth','api_key','none']);
-        if(authentication!==(provider==='kimi'?'oauth':provider==='local'?'none':'api_key'))throw new DomainError('PLANNER1_OFFICIAL_AUTH_UNAVAILABLE',409);
+        const provider=choose(input.provider,['kimi','openai','deepseek','local','magpie']),authentication=choose(input.authentication,['oauth','api_key','none']);
+        if(authentication!==(provider==='kimi'?'oauth':provider==='local'||provider==='magpie'?'none':'api_key'))throw new DomainError('PLANNER1_OFFICIAL_AUTH_UNAVAILABLE',409);
         const current=planner1Binding(this.value),next=structuredClone(this.value);
         next.planner1.provider=provider;next.planner1.model=text(input.model,100);
         if(hasSecret(next.planner1.model))throw new DomainError('PLANNER1_SELECTION_CONTAINS_SECRET',400);
         next.planner1.authMode='api_key'; // Legacy field; actual OAuth/API identity is in planner1Binding.
-        if(provider==='local'){
+        if(provider==='magpie'){
+            next.planner1.bindingVersion=3;
+            next.planner1.protocol=MAGPIE_PLANNER1_PROTOCOL;
+            next.planner1.baseUrl=MAGPIE_PLANNER1_BASE_URL;
+            // No credential is involved, but the field is a non-empty name by contract; it simply
+            // never resolves to a secret for this route.
+            next.planner1.keyEnv='MAGPIE_PLANNER1_NO_KEY';
+        }else if(provider==='local'){
             next.planner1.bindingVersion=3;
             next.planner1.protocol=LOCAL_PLANNER1_PROTOCOL;
             next.planner1.baseUrl=LOCAL_PLANNER1_BASE_URL;

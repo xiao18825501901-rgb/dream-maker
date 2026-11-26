@@ -22,7 +22,7 @@ export const SEEKER_LABEL = 'Seeker';
  */
 type RouteShape = { provider: string; authMethod: string };
 const localRoute = (binding: RouteShape): boolean =>
-    binding.provider === 'local' && binding.authMethod === 'none';
+    (binding.provider === 'local' || binding.provider === 'magpie') && binding.authMethod === 'none';
 
 export function isSeekerApiBinding(binding: Planner1Binding | null | undefined): boolean {
     if (!binding) return false;

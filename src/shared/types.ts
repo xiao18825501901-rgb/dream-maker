@@ -347,7 +347,7 @@ export interface Config {
          * explicit v2 API, or a v3 fixed-loopback local Ollama binding. See
          * src/server/planner1-binding.ts.
          */
-        provider?: 'kimi' | 'openai' | 'deepseek' | 'local' | 'siwc';
+        provider?: 'kimi' | 'openai' | 'deepseek' | 'local' | 'siwc' | 'magpie';
         /** Account reference required before a real Kimi dispatch; empty = unbound. */
         accountRef?: string;
         /** Hash of the frozen runner policy (zero-tool agent profile and friends). */

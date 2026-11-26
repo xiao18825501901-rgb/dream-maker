@@ -134,6 +134,16 @@ export function localProviderApiUrl(base: string, protocol: string): URL {
         throw new DomainError('LOCAL_PLANNER1_LOOPBACK_ONLY', 403);
     return u;
 }
+const MAGPIE_BASE = 'http://127.0.0.1:3425/v1';
+
+/** The Magpie gateway keeps its own loopback contract: 127.0.0.1:3425, chat wire, no credential. */
+export function magpieProviderApiUrl(base: string, protocol: string): URL {
+    const u = new URL(base);
+    if (u.protocol !== 'http:' || u.hostname !== '127.0.0.1' || u.port !== '3425' || u.username || u.password || u.search || u.hash ||
+        u.href.replace(/\/$/, '') !== MAGPIE_BASE || protocol !== 'chat-completions')
+        throw new DomainError('MAGPIE_PLANNER1_LOOPBACK_ONLY', 403);
+    return u;
+}
 export function allowedJsonTarget(url: string, method = 'GET'): URL {
     const u = new URL(url);
     const requestedMethod = method.toUpperCase();
@@ -156,7 +166,9 @@ export function allowedJsonTarget(url: string, method = 'GET'): URL {
             // apart from "it is already running", and that fact lives only on this endpoint.
             // GET only: nothing here may mutate the local service.
             (requestedMethod === 'GET' && u.pathname === '/api/ps'));
-    const local = layaLocal || planner1Local;
+    const magpieLocal = u.protocol === 'http:' && u.hostname === '127.0.0.1' && u.port === '3425' &&
+        (u.pathname === '/v1/models' || (requestedMethod === 'POST' && u.pathname === '/v1/chat/completions'));
+    const local = layaLocal || planner1Local || magpieLocal;
     if ((!external && !local) || u.username || u.password || u.search || u.hash || u.href !== url)
         throw new DomainError('NETWORK_TARGET_DENIED', 403);
     if (u.hostname === 'api.deepseek.com' && u.pathname === '/user/balance' && method !== 'GET')
