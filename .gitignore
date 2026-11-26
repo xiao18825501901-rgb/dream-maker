@@ -29,3 +29,5 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+.rt-*
+.bsync.out
