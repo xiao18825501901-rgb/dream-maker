@@ -31,3 +31,6 @@ desktop.ini
 *.swp
 .rt-*
 .bsync.out
+.tok
+.credin.txt
+.gettok*.ps1
