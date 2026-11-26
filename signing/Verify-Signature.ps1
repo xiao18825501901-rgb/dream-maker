@@ -1,4 +1,4 @@
-param([string]$Package = "D:\DreamMakerSuite\dist-portable\DreamMakerSuite-Portable-0.1.0")
+﻿param([string]$Package = "D:\DreamMakerSuite\dist-portable\DreamMakerSuite-Portable-0.1.0")
 $ErrorActionPreference = "Stop"
 $signtool = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe"
 $exe = Join-Path $Package "dream-maker.exe"

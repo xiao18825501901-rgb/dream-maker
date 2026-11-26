@@ -1,0 +1,26 @@
+﻿# eSigner 凭据模板（纯说明文件，故意不含任何可执行赋值）
+#
+# 为什么这样写：如果把 $env:XXX = "" 留在这里，误执行会把四项环境变量清空，
+# 看起来像"填好了但其实是空的"。所以整份文件只作参考，真正写入靠一条命令。
+#
+# ── 一条命令搞定 ─────────────────────────────────────────────
+#
+#   .\Set-eSignerEnv.ps1 -Username <邮箱> -CredentialId <UUID> -TotpSecret <Base32>
+#
+#   密码会交互式提示，不进命令行历史。
+#   写入位置是 HKCU 用户环境变量，不落文件、不进 git、不进便携包。
+#
+# ── 验一下（只验账号，不消耗签名配额）────────────────────────
+#
+#   .\Set-eSignerEnv.ps1 -Test
+#
+# ── 四个值分别从哪来 ────────────────────────────────────────
+#
+#   ESIGNER_USERNAME       你的 ssl.com 登录邮箱
+#   ESIGNER_PASSWORD       你的 ssl.com 登录密码
+#   ESIGNER_CREDENTIAL_ID  Orders → Code Signing order → Download
+#                          → SIGNING CREDENTIALS 里的 UUID
+#   ESIGNER_TOTP_SECRET    eSigner PIN / QR 区域的 Base32 种子文本
+#                          （不是 6 位动态码）
+#
+# 详细点击路径见同目录 SSL_COM_CA_STEPS_CN.md

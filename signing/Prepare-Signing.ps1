@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   在等待 CA 审核期间，先把"要签什么"固定下来。
 .DESCRIPTION
