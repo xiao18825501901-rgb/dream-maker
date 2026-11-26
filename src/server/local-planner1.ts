@@ -118,7 +118,23 @@ export class LocalPlanner1Runtime {
     constructor(
         private request:typeof jsonFetch=jsonFetch,
         private sampleHardware:()=>LocalHardwareSnapshot=hardwareSnapshot,
-        private clock:()=>number=Date.now
+        private clock:()=>number=Date.now,
+        /**
+         * Which models the local service currently keeps resident.
+         *
+         * A straight loopback probe with the module fetch: the resident list is a local health
+         * fact, not a model call, so it must not travel through a role-scoped transport that only
+         * carries model endpoints. Injectable so tests keep the "no local request before the
+         * hardware gate" contract without touching the network.
+         */
+        private residentModels:()=>Promise<readonly string[]> = async () => {
+            try {
+                const origin=LOCAL_PLANNER1_BASE_URL.replace(/\/v1\/?$/,'');
+                const res=await jsonFetch(origin+'/api/ps',{method:'GET',signal:AbortSignal.timeout(3000)}) as {models?:unknown};
+                const rows=Array.isArray(res?.models)?res.models:[];
+                return rows.map(row=>row&&typeof row==='object'&&typeof (row as {name?:unknown}).name==='string'?(row as {name:string}).name:'').filter(Boolean);
+            } catch { return []; }
+        }
     ){}
 
     status(config:Config):LocalPlanner1Status { return localPlanner1Status(config,this.sampleHardware()); }
@@ -154,7 +170,13 @@ export class LocalPlanner1Runtime {
     async assertReady(model:string,signal?:AbortSignal):Promise<{hardware:LocalHardwareSnapshot;installedModels:string[]}> {
         if(!model.trim())throw new DomainError('LOCAL_PLANNER1_MODEL_REQUIRED',409);
         const hardware=this.sampleHardware(),assessment=assessLocalPlanner1Hardware(model,hardware);
-        if(!assessment.supported&&!this.provenRunnable.has(model))throw new DomainError('LOCAL_PLANNER1_HARDWARE_INSUFFICIENT',409,'这台电脑当前可用资源不足以运行所选本地模型；不会自动切换到云端。');
+        if(!assessment.supported&&!this.provenRunnable.has(model)){
+            // The threshold answers "can this model be LOADED". A model that is already resident
+            // has spent that memory and must not be judged by the load-time rule again — otherwise
+            // a passing probe would refuse the very model it just proved usable.
+            const resident=await this.residentModels().catch(()=>[] as readonly string[]);
+            if(!resident.includes(model))throw new DomainError('LOCAL_PLANNER1_HARDWARE_INSUFFICIENT',409,'这台电脑当前可用资源不足以运行所选本地模型；不会自动切换到云端。');
+        }
         const installedModels=await this.installedModels(signal);
         if(!installedModels.includes(model))throw new DomainError('LOCAL_PLANNER1_MODEL_NOT_INSTALLED',409,'Ollama 中没有所选模型；请按官方来源安装后再检查。');
         this.provenRunnable.add(model);
