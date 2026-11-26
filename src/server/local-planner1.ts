@@ -139,18 +139,37 @@ export class LocalPlanner1Runtime {
         return [...new Set(models)].sort();
     }
 
+    /**
+     * Models this process has already proven runnable on this machine.
+     *
+     * The headroom rule asks "is there enough free memory to LOAD this model". Once a model is
+     * loaded, the memory it needs is already spent and the free figure necessarily sits below that
+     * threshold — so applying the load-time rule again refuses the very model that is answering.
+     * That is what made a passing capability check followed immediately by a refusal look like a
+     * contradiction. Remembering the proof keeps the rule honest without adding a network call,
+     * which the "no local request before the hardware gate" contract forbids.
+     */
+    private provenRunnable = new Set<string>();
+
     async assertReady(model:string,signal?:AbortSignal):Promise<{hardware:LocalHardwareSnapshot;installedModels:string[]}> {
         if(!model.trim())throw new DomainError('LOCAL_PLANNER1_MODEL_REQUIRED',409);
         const hardware=this.sampleHardware(),assessment=assessLocalPlanner1Hardware(model,hardware);
-        if(!assessment.supported)throw new DomainError('LOCAL_PLANNER1_HARDWARE_INSUFFICIENT',409,'这台电脑当前可用资源不足以运行所选本地模型；不会自动切换到云端。');
+        if(!assessment.supported&&!this.provenRunnable.has(model))throw new DomainError('LOCAL_PLANNER1_HARDWARE_INSUFFICIENT',409,'这台电脑当前可用资源不足以运行所选本地模型；不会自动切换到云端。');
         const installedModels=await this.installedModels(signal);
         if(!installedModels.includes(model))throw new DomainError('LOCAL_PLANNER1_MODEL_NOT_INSTALLED',409,'Ollama 中没有所选模型；请按官方来源安装后再检查。');
+        this.provenRunnable.add(model);
         return{hardware,installedModels};
     }
 
+    /**
+     * The probe loads the model. Without keep_alive:0 Ollama keeps it resident for five minutes,
+     * so the very next assertReady samples a machine the probe itself just filled — and refuses
+     * the model the probe had just proven usable. Release it as soon as the probe answers: a
+     * diagnosis must not consume the resource it is diagnosing.
+     */
     async check(model:string,signal?:AbortSignal):Promise<LocalPlanner1Capability> {
         const {hardware}=await this.assertReady(model,signal),challenge='DM_LOCAL_PROBE_'+randomBytes(16).toString('hex');
-        const body={model,messages:[{role:'system',content:'Return exactly the requested JSON object. No markdown, tools or explanation.'},{role:'user',content:JSON.stringify({probe:challenge})}],temperature:0,max_tokens:96};
+        const body={model,messages:[{role:'system',content:'Return exactly the requested JSON object. No markdown, tools or explanation.'},{role:'user',content:JSON.stringify({probe:challenge})}],temperature:0,max_tokens:96,keep_alive:0};
         const combined=signal?AbortSignal.any([signal,AbortSignal.timeout(180000)]):AbortSignal.timeout(180000);
         let result:Record<string,unknown>;
         try {
