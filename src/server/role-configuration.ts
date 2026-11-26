@@ -447,10 +447,17 @@ export class RoleConfigurations {
             plugins: readIdList(raw.plugins, 'ROLE_CONFIG_PLUGIN_UNKNOWN')
         });
         // Built-ins are fixed; user-installed ids are whatever the extension manifest offers this role.
+        // A built-in is only offered to the roles it applies to (the interview skills belong to the
+        // Seeker), so the write path checks the same rule the picker shows. Without that, the
+        // catalog said one thing and a hand-written request could attach grillme to the executor.
         const userSkills = this.root ? new Set(extensionCatalog(this.root, role, 'skills').entries.map(e => e.id)) : new Set<string>();
-        for (const skill of selection.skills)
-            if (!BUILT_IN_SKILLS.includes(skill as (typeof BUILT_IN_SKILLS)[number]) && !userSkills.has(skill))
+        for (const skill of selection.skills) {
+            if (userSkills.has(skill)) continue;
+            if (!BUILT_IN_SKILLS.includes(skill as (typeof BUILT_IN_SKILLS)[number]))
                 throw new DomainError('ROLE_CONFIG_SKILL_UNKNOWN', 400, '技能 ' + skill + ' 不在服务端提供的清单内。');
+            if (!skillsForRole(role).includes(skill as (typeof BUILT_IN_SKILLS)[number]))
+                throw new DomainError('ROLE_CONFIG_SKILL_NOT_FOR_ROLE', 400, '技能 ' + skill + ' 不适用于 ' + role + '；不会替它换一个角色。');
+        }
         const userPlugins = this.root ? new Set(extensionCatalog(this.root, role, 'plugins').entries.map(e => e.id)) : new Set<string>();
         for (const plugin of selection.plugins)
             if (!userPlugins.has(plugin))
