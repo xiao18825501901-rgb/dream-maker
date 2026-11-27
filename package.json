@@ -21,8 +21,8 @@
     "verify:dreamflow": "node scripts/verify-dreamflow.mjs"
   },
   "devDependencies": {
-    "typescript": "5.8.3",
-    "@types/node": "22.19.7"
+    "typescript": "7.0.2",
+    "@types/node": "26.6.6"
   },
   "repository": {
     "type": "git",
