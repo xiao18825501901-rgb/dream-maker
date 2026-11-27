@@ -1,6 +1,6 @@
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { appendFileSync, mkdirSync } from 'node:fs';
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { createApp } from './http.js';
 import {createNativeOwner} from './native-owner.js';
@@ -80,6 +80,10 @@ catch (e) {
 finally{settleStartup!();}
 console.log((product==='dreamflow'?'DreamFlow':'Dream Maker')+' 0.1.0 · local development preview');
 console.log('Open this one-time local URL (do not share it):');
+// A piped/file stdout is block-buffered in Node, so a long-running local service would never
+// flush this line to a log or a spawning parent. Write the token to a 0600 file as well: the
+// launcher, the operator and any acceptance harness can read it without tailing a TTY.
+try{writeFileSync(resolve(data,'bootstrap-token.txt'),app.bootstrap,{encoding:'utf8',mode:0o600});}catch{}
 console.log(app.bootstrapUrl);
 {
     const url=app.bootstrapUrl;
